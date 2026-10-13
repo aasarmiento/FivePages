@@ -24,6 +24,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -32,6 +33,9 @@ import androidx.compose.ui.unit.sp
 import com.example.fivepages.FpColor
 import com.example.fivepages.FpSans
 import com.example.fivepages.FpSerif
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
+import com.example.fivepages.R
 
 @Composable
 fun WelcomeScreen(
@@ -59,14 +63,14 @@ fun WelcomeScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Icon(
-                Icons.Filled.MenuBook,
+            Image(
+                painter = painterResource(R.drawable.fivepages_logo),
                 contentDescription = "FivePages logo",
-                tint = FpColor.Green,
-                modifier = Modifier.size(72.dp)
+                modifier = Modifier.size(150.dp)
             )
+
             Spacer(Modifier.height(8.dp))
-            Text("FIVEPAGES", fontFamily = FpSerif, fontWeight = FontWeight.Bold, fontSize = 22.sp, color = FpColor.Green)
+            Text("FivePages", fontFamily = FpSerif, fontWeight = FontWeight.Bold, fontSize = 22.sp, color = FpColor.Green)
             Text("habit-enforcer app", fontFamily = FpSerif, fontSize = 13.sp, color = FpColor.Green)
             Spacer(Modifier.height(20.dp))
             Text("Welcome to FivePages", fontFamily = FpSerif, fontWeight = FontWeight.SemiBold, fontSize = 18.sp, color = FpColor.Ink)
