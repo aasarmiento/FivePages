@@ -33,29 +33,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.example.fivepages.ui.theme.FivePagesTheme
 
-
-//Branding Colors
-object FpColor{
-    val Background = Color(0xFFFAFAF8)
-    val Ink = Color(0xFF1F2937)
-    val Muted = Color(0xFF6B7280)
-    val Line = Color(0xFFE2E2DD)
-    val Green = Color(0xFF3F6659)
-    val Tint = Color(0xFFE7EEEB)
-    val White = Color(0xFFFFFFFF)
-    val Danger = Color(0xFFB45252)
-}
-
-//Font Family
-val FpSerif = FontFamily.Serif
-val FpSans = FontFamily.SansSerif
 
 //Bottom Tabs
 private enum class Tab(val label: String, val icon: ImageVector) {
@@ -69,116 +52,98 @@ private enum class Tab(val label: String, val icon: ImageVector) {
 fun LibraryEmptyScreen(
     onAddBook: () -> Unit,
     onTabSelected: (String) -> Unit = {},
-    ) {
-
+) {
+    val colors = MaterialTheme.colorScheme
     var selected by remember { mutableStateOf(Tab.Library) }
 
     Scaffold(
-        containerColor = FpColor.Background,
+        containerColor = colors.background,
         topBar = {
-            Column(Modifier.background(FpColor.Background)) {
+            Column(Modifier.background(colors.background)) {
                 Text(
-                    "My Books",
-                    fontFamily = FpSerif,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 26.sp,
-                    color = FpColor.Ink,
+                    "My books",
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = colors.onBackground,
                     modifier = Modifier
                         .statusBarsPadding()
                         .padding(horizontal = 20.dp, vertical = 12.dp),
-                    )
-                HorizontalDivider(color = FpColor.Line)
+                )
+                HorizontalDivider(color = colors.outline)
             }
         },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onAddBook,
-                containerColor = FpColor.Green,
-                contentColor = Color.White,
+                containerColor = colors.primary,
+                contentColor = colors.onPrimary,
                 shape = CircleShape,
-
-                ) { Icon(Icons.Filled.Add, contentDescription = "Add a book") }
+            ) { Icon(Icons.Filled.Add, contentDescription = "Add a book") }
         },
         bottomBar = {
-            NavigationBar(containerColor = FpColor.White) {
+            NavigationBar(containerColor = colors.surface) {
                 Tab.entries.forEach { tab ->
                     NavigationBarItem(
                         selected = tab == selected,
                         onClick = { selected = tab; onTabSelected(tab.label) },
                         icon = { Icon(tab.icon, contentDescription = null) },
-
                         label = {
                             Text(
                                 tab.label,
-                                fontFamily = FpSans,
-                                fontSize = 12.sp,
+                                style = MaterialTheme.typography.labelMedium,
                                 fontWeight = if (tab == selected) FontWeight.Bold else FontWeight.Medium,
-                                )
+                            )
                         },
-
                         colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = FpColor.Green,
-                            selectedTextColor = FpColor.Green,
-                            unselectedIconColor = FpColor.Muted,
-                            unselectedTextColor = FpColor.Muted,
+                            selectedIconColor = colors.primary,
+                            selectedTextColor = colors.primary,
+                            unselectedIconColor = colors.onSurfaceVariant,
+                            unselectedTextColor = colors.onSurfaceVariant,
                             indicatorColor = Color.Transparent,
-                            ),
-                        )
+                        ),
+                    )
                 }
             }
         },
-        ) { padding ->
+    ) { padding ->
         EmptyLibraryState(Modifier.padding(padding).fillMaxSize())
     }
+
+
 }
 
 @Composable
 private fun EmptyLibraryState(modifier: Modifier = Modifier) {
-
+    val colors = MaterialTheme.colorScheme
     Column(
         modifier = modifier.padding(horizontal = 40.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
-        ) {
+    ) {
         Box(
-            Modifier.size(72.dp).background(FpColor.Tint, CircleShape),
+            Modifier.size(72.dp).background(colors.secondaryContainer, CircleShape),
             contentAlignment = Alignment.Center,
-            ) {
-
+        ) {
             Icon(
                 Icons.Filled.MenuBook,
                 contentDescription = null,
-                tint = FpColor.Green,
+                tint = colors.primary,
                 modifier = Modifier.size(36.dp),
-                )
+            )
         }
         Spacer(Modifier.height(20.dp))
-
-        Text(
-            "No books yet",
-            fontFamily = FpSerif,
-            fontWeight = FontWeight.SemiBold,
-            fontSize = 18.sp,
-            color = FpColor.Ink,
-            )
-
+        Text("No books yet", style = MaterialTheme.typography.titleLarge, color = colors.onBackground)
         Spacer(Modifier.height(6.dp))
         Text(
             "Add a book and we’ll turn it into a small daily goal.",
-            fontFamily = FpSans,
-            fontSize = 14.sp,
-            lineHeight = 20.sp,
-            color = FpColor.Muted,
+            style = MaterialTheme.typography.bodyMedium,
+            color = colors.onSurfaceVariant,
             textAlign = TextAlign.Center,
-            )
+        )
     }
 }
 
 @Preview(showBackground = true, widthDp = 375, heightDp = 812)
-
 @Composable
 private fun LibraryEmptyPreview() {
-    MaterialTheme { LibraryEmptyScreen(onAddBook = {}) }
+    FivePagesTheme { LibraryEmptyScreen(onAddBook = {}) }
 }
-
-
