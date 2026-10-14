@@ -16,6 +16,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -23,20 +24,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import com.example.fivepages.FpColor
-import com.example.fivepages.FpSans
-import com.example.fivepages.FpSerif
+import com.example.fivepages.ui.theme.FivePagesTheme
 
 @Composable
 fun RemindersOnDialog(onDismiss: () -> Unit) {
+    val colors = MaterialTheme.colorScheme
 
     //Popup
     Dialog(onDismissRequest = onDismiss) {
         Card(
             shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(containerColor = FpColor.White),
+            colors = CardDefaults.cardColors(containerColor = colors.surface),
             elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
         ) {
             Column(
@@ -54,16 +53,19 @@ fun RemindersOnDialog(onDismiss: () -> Unit) {
                     Icon(
                         Icons.Filled.Notifications,
                         contentDescription = null,
-                        tint = FpColor.Green,
+                        tint = colors.primary,
                         modifier = Modifier.size(36.dp)
                     )
                     Column {
-                        Text("Reminders are on!", fontFamily = FpSerif, fontWeight = FontWeight.Medium, fontSize = 18.sp, color = FpColor.Ink)
                         Text(
-                            "Don't worry, you can disable and edit this in Settings later.",
-                            fontFamily = FpSans,
-                            fontSize = 10.sp,
-                            color = FpColor.Muted
+                            text = "Reminders are on!",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = colors.onSurface
+                        )
+                        Text(
+                            text = "Don't worry, you can disable and edit this in Settings later.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = colors.onSurfaceVariant
                         )
                     }
                 }
@@ -74,9 +76,16 @@ fun RemindersOnDialog(onDismiss: () -> Unit) {
                     onClick = onDismiss,
                     modifier = Modifier.fillMaxWidth().height(40.dp),
                     shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = FpColor.Green, contentColor = FpColor.White),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = colors.primary,
+                        contentColor = colors.onPrimary
+                    ),
                 ) {
-                    Text("Okay, got it!", fontFamily = FpSans, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                    Text(
+                        text = "Okay, got it!",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.SemiBold
+                    )
                 }
             }
         }
@@ -86,5 +95,7 @@ fun RemindersOnDialog(onDismiss: () -> Unit) {
 @Preview(showBackground = true)
 @Composable
 private fun RemindersOnDialogPreview() {
-    RemindersOnDialog(onDismiss = {})
+    FivePagesTheme {
+        RemindersOnDialog(onDismiss = {})
+    }
 }

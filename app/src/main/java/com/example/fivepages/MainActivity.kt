@@ -6,13 +6,16 @@ import androidx.activity.compose.setContent
 import androidx.compose.runtime.remember
 import com.example.fivepages.navigation.AppNavHost
 import com.example.fivepages.state.AppState
+import com.example.fivepages.ui.theme.FivePagesTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val appState = remember { AppState() }
-            AppNavHost(appState)
+            FivePagesTheme {
+                val appState = remember { AppState() }
+                AppNavHost(appState)
+            }
         }
     }
 }

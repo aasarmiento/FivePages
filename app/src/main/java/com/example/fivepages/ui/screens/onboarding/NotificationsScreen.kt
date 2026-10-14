@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -29,9 +30,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.fivepages.FpColor
-import com.example.fivepages.FpSans
-import com.example.fivepages.FpSerif
+import com.example.fivepages.ui.theme.FivePagesTheme
 
 @Composable
 fun NotificationsScreen(
@@ -39,10 +38,12 @@ fun NotificationsScreen(
     onNotNow: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colors = MaterialTheme.colorScheme
+
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(FpColor.Background)
+            .background(colors.background)
             .systemBarsPadding()
             .padding(horizontal = 24.dp, vertical = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -54,21 +55,25 @@ fun NotificationsScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Gentle reminders", fontFamily = FpSerif, fontWeight = FontWeight.Medium, fontSize = 22.sp, color = FpColor.Ink)
+            Text(
+                "Gentle reminders",
+                style = MaterialTheme.typography.headlineSmall,
+                color = colors.onBackground
+            )
             Spacer(Modifier.height(20.dp))
             Icon(
                 Icons.Filled.Notifications,
                 contentDescription = null,
-                tint = FpColor.Green,
+                tint = colors.primary,
                 modifier = Modifier.size(52.dp)
             )
             Spacer(Modifier.height(24.dp))
             Text(
                 "We can nudge you during your free time, like your morning coffee, so reading doesn't get lost in the day. You choose the windows, and can turn this off anytime in Settings.",
-                fontFamily = FpSans,
+                style = MaterialTheme.typography.bodyMedium,
                 fontSize = 13.sp,
                 lineHeight = 19.sp,
-                color = FpColor.Muted,
+                color = colors.onSurfaceVariant,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth(0.85f)
             )
@@ -80,7 +85,10 @@ fun NotificationsScreen(
                     Box(
                         Modifier
                             .size(width = if (i == 2) 18.dp else 5.dp, height = 5.dp)
-                            .background(if (i == 2) FpColor.Green else FpColor.Muted.copy(alpha = 0.35f), CircleShape)
+                            .background(
+                                color = if (i == 2) colors.primary else colors.onSurfaceVariant.copy(alpha = 0.35f),
+                                shape = CircleShape
+                            )
                     )
                 }
             }
@@ -91,14 +99,25 @@ fun NotificationsScreen(
             onClick = onEnableReminders,
             modifier = Modifier.fillMaxWidth().height(52.dp),
             shape = RoundedCornerShape(10.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = FpColor.Green, contentColor = FpColor.White),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = colors.primary,
+                contentColor = colors.onPrimary
+            ),
         ) {
-            Text("Enable reminders", fontFamily = FpSans, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+            Text(
+                text = "Enable reminders",
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold
+            )
         }
 
         //Not Now Link
         TextButton(onClick = onNotNow) {
-            Text("Not now", fontFamily = FpSans, fontSize = 12.sp, color = FpColor.Muted)
+            Text(
+                text = "Not now",
+                style = MaterialTheme.typography.bodySmall,
+                color = colors.onSurfaceVariant
+            )
         }
     }
 }
@@ -106,5 +125,7 @@ fun NotificationsScreen(
 @Preview(showBackground = true, widthDp = 360, heightDp = 780)
 @Composable
 private fun NotificationsScreenPreview() {
-    NotificationsScreen(onEnableReminders = {}, onNotNow = {})
+    FivePagesTheme {
+        NotificationsScreen(onEnableReminders = {}, onNotNow = {})
+    }
 }
