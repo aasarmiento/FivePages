@@ -2,6 +2,7 @@ package com.example.fivepages.ui.screens.addbook
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,14 +19,21 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,7 +44,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
+
+private val DateFmt = SimpleDateFormat("MM / dd / yyyy", Locale.US).apply {
+    timeZone = TimeZone.getTimeZone("UTC")
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddBookScreen(onBack: () -> Unit) {
 
@@ -45,6 +63,10 @@ fun AddBookScreen(onBack: () -> Unit) {
     // Form State
     var title by remember { mutableStateOf("") }
     var pagesText by remember { mutableStateOf("") }
+    var targetDateMillis by remember { mutableStateOf<Long?>(null) }
+    var showPicker by remember { mutableStateOf(false) }
+    val formattedDate = targetDateMillis?.let { DateFmt.format(Date(it)) } ?: ""
+
 
     Scaffold(
         containerColor = colors.background,
@@ -96,7 +118,7 @@ fun AddBookScreen(onBack: () -> Unit) {
                 FpTextField(
                     value = title,
                     onChange = { title = it },
-                    placeholder = "e.g. Atomic Habits"
+                    placeholder = "e.g. Before the Coffee Gets Cold"
                 )
             }
 
@@ -109,6 +131,64 @@ fun AddBookScreen(onBack: () -> Unit) {
                     keyboard = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
             }
+            // Target Finish Date Input
+            LabeledField(label = "Target finish date") {
+                Box {
+                    FpTextField(
+                        value = formattedDate,
+                        onChange = {},
+                        placeholder = "mm / dd / yyyy",
+                        readOnly = true,
+                        trailing = {
+                            Icon(
+                                imageVector = Icons.Filled.CalendarMonth,
+                                contentDescription = "Pick a date",
+                                tint = colors.primary
+                            )
+                        }
+                    )
+                    Box(
+                        Modifier
+                            .matchParentSize()
+                            .clickable { showPicker = true }
+                    )
+                }
+            }
+        }
+    }
+
+    // Material 3 Date Picker Dialog
+    if (showPicker) {
+        val pickerState = rememberDatePickerState(
+            initialSelectedDateMillis = targetDateMillis ?: System.currentTimeMillis(),
+            selectableDates = object : SelectableDates {
+                override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                    // Prevent selecting dates before today (at midnight UTC)
+                    val todayMidnight = (System.currentTimeMillis() / 86400000L) * 86400000L
+                    return utcTimeMillis >= todayMidnight
+                }
+            }
+        )
+
+        DatePickerDialog(
+            onDismissRequest = { showPicker = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        targetDateMillis = pickerState.selectedDateMillis
+                        showPicker = false
+                    }
+                ) {
+                    Text("OK", color = colors.primary)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showPicker = false }) {
+                    Text("Cancel", color = colors.onSurfaceVariant)
+                }
+            }
+        ) {
+            DatePicker(state = pickerState)
         }
     }
 }
@@ -131,11 +211,14 @@ private fun FpTextField(
     onChange: (String) -> Unit,
     placeholder: String,
     keyboard: KeyboardOptions = KeyboardOptions.Default,
+    readOnly: Boolean = false,
+    trailing: (@Composable () -> Unit)? = null,
 ) {
     val colors = MaterialTheme.colorScheme
     OutlinedTextField(
         value = value,
         onValueChange = onChange,
+        readOnly = readOnly,
         singleLine = true,
         keyboardOptions = keyboard,
         placeholder = {
@@ -146,6 +229,7 @@ private fun FpTextField(
                 color = colors.onSurfaceVariant.copy(alpha = 0.7f),
             )
         },
+        trailingIcon = trailing,
         shape = RoundedCornerShape(14.dp),
         textStyle = MaterialTheme.typography.bodyLarge.copy(color = colors.onSurface),
         colors = OutlinedTextFieldDefaults.colors(
@@ -158,5 +242,4 @@ private fun FpTextField(
         modifier = Modifier.fillMaxWidth(),
     )
 }
-
 
