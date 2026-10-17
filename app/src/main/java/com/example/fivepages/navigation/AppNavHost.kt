@@ -3,6 +3,10 @@ package com.example.fivepages.navigation
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -10,10 +14,6 @@ import androidx.navigation.compose.rememberNavController
 import com.example.fivepages.LibraryEmptyScreen
 import com.example.fivepages.state.AppState
 import com.example.fivepages.ui.screens.addbook.AddBookScreen
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import com.example.fivepages.ui.screens.onboarding.HowItWorksScreen
 import com.example.fivepages.ui.screens.onboarding.NotificationsScreen
 import com.example.fivepages.ui.screens.onboarding.RemindersOnDialog
@@ -44,7 +44,9 @@ fun AppNavHost(appState: AppState) {
         composable(Routes.ONBOARDING_WELCOME) {
             WelcomeScreen(
                 onGetStarted = {
-                    navController.navigate(Routes.ONBOARDING_HOW_IT_WORKS) { launchSingleTop = true }
+                    navController.navigate(Routes.ONBOARDING_HOW_IT_WORKS) {
+                        launchSingleTop = true
+                    }
                 },
                 onSkip = finishOnboarding
             )
@@ -52,7 +54,9 @@ fun AppNavHost(appState: AppState) {
         composable(Routes.ONBOARDING_HOW_IT_WORKS) {
             HowItWorksScreen(
                 onNext = {
-                    navController.navigate(Routes.ONBOARDING_NOTIFICATIONS) { launchSingleTop = true }
+                    navController.navigate(Routes.ONBOARDING_NOTIFICATIONS) {
+                        launchSingleTop = true
+                    }
                 }
             )
         }
@@ -81,11 +85,14 @@ fun AppNavHost(appState: AppState) {
             )
         }
         composable(Routes.ADD_BOOK) {
-            AddBookScreen(onBack = { navController.goBack() })
+            AddBookScreen(
+                onBack = { navController.goBack() },
+                onSave = { title, totalPages, targetDateMillis ->
+                    // TODO: Add new book to appState here before navigating back
+                    navController.goBack()
+                }
+            )
         }
     }
 }
 
-fun AddBookScreen(onBack: () -> Unit) {
-
-}

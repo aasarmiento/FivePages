@@ -2,6 +2,7 @@ package com.example.fivepages.ui.screens.addbook
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,16 +11,23 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -42,8 +50,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.fivepages.model.dailyGoal
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -56,7 +67,8 @@ private val DateFmt = SimpleDateFormat("MM / dd / yyyy", Locale.US).apply {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddBookScreen(onBack: () -> Unit) {
+fun AddBookScreen(onBack: () -> Unit, onSave: (title: String, totalPages: Int, targetDateMillis: Long) -> Unit,
+) {
 
     val colors = MaterialTheme.colorScheme
 
@@ -66,6 +78,20 @@ fun AddBookScreen(onBack: () -> Unit) {
     var targetDateMillis by remember { mutableStateOf<Long?>(null) }
     var showPicker by remember { mutableStateOf(false) }
     val formattedDate = targetDateMillis?.let { DateFmt.format(Date(it)) } ?: ""
+
+    val pages = pagesText.toIntOrNull() ?: 0
+
+    // Days Left & Daily Goal Calculation
+    val daysLeft = remember(targetDateMillis) {
+        targetDateMillis?.let { target ->
+            val nowMs = System.currentTimeMillis()
+            val diffMs = target - nowMs
+            val calculatedDays = (diffMs / (1000 * 60 * 60 * 24)).toInt() + 1
+            if (calculatedDays > 0) calculatedDays else 1
+        } ?: 0
+    }
+    val perDay = if (pages > 0 && daysLeft > 0) dailyGoal(pages, daysLeft) else 0
+    val isFormValid = title.isNotBlank() && pages > 0 && targetDateMillis != null
 
 
     Scaffold(
@@ -102,6 +128,40 @@ fun AddBookScreen(onBack: () -> Unit) {
                     )
                 }
                 HorizontalDivider(color = colors.outline)
+            }
+        },
+        bottomBar = {
+            Column(
+                Modifier
+                    .background(colors.background)
+                    .navigationBarsPadding()
+                    .imePadding()
+                    .padding(20.dp)
+            ) {
+                Button(
+                    onClick = {
+                        targetDateMillis?.let { targetMillis ->
+                            onSave(title.trim(), pages, targetMillis)
+                        }
+                    },
+                    enabled = isFormValid,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = colors.primary,
+                        contentColor = colors.onPrimary,
+                        disabledContainerColor = colors.surfaceVariant,
+                        disabledContentColor = colors.onSurfaceVariant.copy(alpha = 0.5f)
+                    )
+                ) {
+                    Text(
+                        text = "Save to Library",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
     ) { padding ->
@@ -154,6 +214,10 @@ fun AddBookScreen(onBack: () -> Unit) {
                     )
                 }
             }
+            // Dynamic Goal Card Calculation
+            if (perDay > 0) {
+                GoalCard(perDay = perDay, pages = pages, days = daysLeft)
+            }
         }
     }
 
@@ -189,6 +253,42 @@ fun AddBookScreen(onBack: () -> Unit) {
             }
         ) {
             DatePicker(state = pickerState)
+        }
+    }
+}
+
+@Composable
+private fun GoalCard(perDay: Int, pages: Int, days: Int) {
+    val colors = MaterialTheme.colorScheme
+    val subStyle = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic)
+
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .background(colors.primaryContainer, RoundedCornerShape(12.dp))
+            .border(1.dp, colors.primary, RoundedCornerShape(12.dp))
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text("🦉", fontSize = 48.sp)
+        Spacer(Modifier.width(16.dp))
+        Column {
+            Text(
+                text = "$perDay pages a day",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = colors.onPrimaryContainer,
+            )
+            Text(
+                text = "$pages pages ÷ $days days",
+                style = subStyle,
+                color = colors.onPrimaryContainer.copy(alpha = 0.8f)
+            )
+            Text(
+                text = "1 micro-sprint of $perDay pages",
+                style = subStyle,
+                color = colors.onPrimaryContainer.copy(alpha = 0.8f)
+            )
         }
     }
 }
