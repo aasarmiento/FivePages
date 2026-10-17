@@ -79,6 +79,7 @@ fun AppNavHost(appState: AppState) {
 
         composable(Routes.LIBRARY) {
             LibraryEmptyScreen(
+                books = appState.books,
                 onAddBook = {
                     navController.navigate(Routes.ADD_BOOK) { launchSingleTop = true }
                 }
@@ -88,7 +89,7 @@ fun AppNavHost(appState: AppState) {
             AddBookScreen(
                 onBack = { navController.goBack() },
                 onSave = { title, totalPages, targetDateMillis ->
-                    // TODO: Add new book to appState here before navigating back
+                    appState.addBook(title, totalPages, targetDateMillis)
                     navController.goBack()
                 }
             )
