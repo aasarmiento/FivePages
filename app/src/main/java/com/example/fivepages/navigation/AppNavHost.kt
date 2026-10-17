@@ -1,5 +1,7 @@
 package com.example.fivepages.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -24,6 +26,7 @@ private fun NavController.goBack() {
     if (previousBackStackEntry != null) popBackStack()
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppNavHost(appState: AppState) {
     val navController = rememberNavController()
@@ -81,4 +84,8 @@ fun AppNavHost(appState: AppState) {
             AddBookScreen(onBack = { navController.goBack() })
         }
     }
+}
+
+fun AddBookScreen(onBack: () -> Unit) {
+
 }
