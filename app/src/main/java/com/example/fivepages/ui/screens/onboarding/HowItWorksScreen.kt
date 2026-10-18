@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -23,10 +24,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.example.fivepages.FpColor
-import com.example.fivepages.FpSans
-import com.example.fivepages.FpSerif
+import com.example.fivepages.ui.theme.FivePagesTheme
+
 
 //Step Data
 private data class Step(val number: Int, val title: String, val body: String)
@@ -43,10 +42,12 @@ fun HowItWorksScreen(
     onNext: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colors = MaterialTheme.colorScheme
+
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(FpColor.Background)
+            .background(colors.background)
             .systemBarsPadding()
             .padding(horizontal = 24.dp, vertical = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -58,7 +59,9 @@ fun HowItWorksScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("How it works", fontFamily = FpSerif, fontWeight = FontWeight.Medium, fontSize = 22.sp, color = FpColor.Ink)
+            Text("How it works",
+                style = MaterialTheme.typography.headlineSmall,
+                color = colors.onBackground)
             Spacer(Modifier.height(28.dp))
             Column(
                 modifier = Modifier.fillMaxWidth(0.85f),
@@ -74,7 +77,10 @@ fun HowItWorksScreen(
                     Box(
                         Modifier
                             .size(width = if (i == 1) 18.dp else 5.dp, height = 5.dp)
-                            .background(if (i == 1) FpColor.Green else FpColor.Muted.copy(alpha = 0.35f), CircleShape)
+                            .background(
+                                color = if (i == 1) colors.primary else colors.onSurfaceVariant.copy(alpha = 0.35f),
+                                shape = CircleShape
+                            )
                     )
                 }
             }
@@ -85,9 +91,14 @@ fun HowItWorksScreen(
             onClick = onNext,
             modifier = Modifier.fillMaxWidth().height(52.dp),
             shape = RoundedCornerShape(10.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = FpColor.Green, contentColor = FpColor.White),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = colors.primary,
+                contentColor = colors.onPrimary
+            ),
         ) {
-            Text("Next", fontFamily = FpSans, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+            Text(text = "Next",
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold)
         }
     }
 }
@@ -95,16 +106,31 @@ fun HowItWorksScreen(
 //Step Row
 @Composable
 private fun StepRow(step: Step) {
+    val colors = MaterialTheme.colorScheme
+
     Row(verticalAlignment = Alignment.Top, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         Box(
-            Modifier.size(26.dp).background(FpColor.Tint, CircleShape),
+            Modifier.size(26.dp).background(colors.secondaryContainer, CircleShape),
             contentAlignment = Alignment.Center
         ) {
-            Text(step.number.toString(), fontFamily = FpSans, fontWeight = FontWeight.SemiBold, fontSize = 12.sp, color = FpColor.Green)
+            Text(text = step.number.toString(),
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = colors.primary
+            )
         }
         Column {
-            Text(step.title, fontFamily = FpSans, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = FpColor.Ink)
-            Text(step.body, fontFamily = FpSans, fontSize = 12.sp, color = FpColor.Muted)
+            Text(
+                text = step.title,
+                style = MaterialTheme.typography.labelLarge,
+                color = colors.onBackground
+            )
+
+            Text(
+                text = step.body,
+                style = MaterialTheme.typography.bodySmall,
+                color = colors.onSurfaceVariant
+            )
         }
     }
 }
@@ -112,5 +138,7 @@ private fun StepRow(step: Step) {
 @Preview(showBackground = true, widthDp = 360, heightDp = 780)
 @Composable
 private fun HowItWorksScreenPreview() {
-    HowItWorksScreen(onNext = {})
+    FivePagesTheme {
+        HowItWorksScreen(onNext = {})
+    }
 }
