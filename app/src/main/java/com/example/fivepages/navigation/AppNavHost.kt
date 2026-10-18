@@ -17,6 +17,11 @@ import com.example.fivepages.ui.screens.onboarding.NotificationsScreen
 import com.example.fivepages.ui.screens.onboarding.RemindersOnDialog
 import com.example.fivepages.ui.screens.onboarding.WelcomeScreen
 import com.example.fivepages.ui.screens.onboarding.rememberNotificationPermission
+import com.example.fivepages.ui.screens.settings.SettingsScreen
+import androidx.compose.runtime.remember
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
+import com.example.fivepages.ui.screens.settings.ReminderWindowScreen
 
 // Safe na Back: pop lang kung may previous screen, para hindi ma-pop ang start screen
 
@@ -74,11 +79,50 @@ fun AppNavHost(appState: AppState) {
             LibraryEmptyScreen(
                 onAddBook = {
                     navController.navigate(Routes.ADD_BOOK) { launchSingleTop = true }
+                },
+                onTabSelected = { tab ->
+                    if (tab == "Settings") {
+                        navController.navigate(Routes.SETTINGS) { launchSingleTop = true }
+                    }
                 }
             )
         }
+
         composable(Routes.ADD_BOOK) {
             AddBookScreen(onBack = { navController.goBack() })
+        }
+
+        //Settings
+        composable(Routes.SETTINGS) {
+            SettingsScreen(
+                reminderWindows = appState.reminderWindows,
+                onToggleReminder = { id, enabled -> appState.setReminderEnabled(id, enabled) },
+                onAddReminderWindow = {
+                    navController.navigate(Routes.reminderWindow(Routes.NEW_REMINDER_ID)) { launchSingleTop = true }
+                },
+                onEditReminder = { id ->
+                    navController.navigate(Routes.reminderWindow(id)) { launchSingleTop = true }
+                },
+                onTabSelected = { tab ->
+                    if (tab == "Library") navController.goBack()
+                }
+            )
+        }
+
+        //Reminder Window (add or edit)
+        composable(
+            route = Routes.REMINDER_WINDOW,
+            arguments = listOf(navArgument(Routes.REMINDER_ID_ARG) { type = NavType.IntType })
+        ) { backStackEntry ->
+            val id = backStackEntry.arguments?.getInt(Routes.REMINDER_ID_ARG) ?: Routes.NEW_REMINDER_ID
+            //remember keeps the original reminder even after it gets deleted
+            val reminder = remember { appState.reminderWindows.firstOrNull { it.id == id } }
+            ReminderWindowScreen(
+                reminder = reminder,
+                onBack = { navController.goBack() },
+                onSave = { label, hour, minute, enabled -> appState.saveReminder(id, label, hour, minute, enabled) },
+                onDelete = { appState.deleteReminder(id) }
+            )
         }
     }
 }
