@@ -25,7 +25,6 @@ import com.example.fivepages.ui.screens.onboarding.WelcomeScreen
 import com.example.fivepages.ui.screens.onboarding.rememberNotificationPermission
 import com.example.fivepages.ui.screens.settings.SettingsScreen
 import androidx.compose.runtime.remember
-import androidx.navigation.navArgument
 import com.example.fivepages.ui.screens.settings.ReminderWindowScreen
 
 // Safe na Back: pop lang kung may previous screen, para hindi ma-pop ang start screen
@@ -170,6 +169,7 @@ fun AppNavHost(appState: AppState) {
             val book = appState.books.firstOrNull { it.id == bookId } ?: return@composable
             LogPagesScreen(
                 book = book,
+                onBack = { navController.goBack() },
                 onSave = { pages: Int ->
                     appState.logPages(bookId, pages)
                     navController.goBack()
