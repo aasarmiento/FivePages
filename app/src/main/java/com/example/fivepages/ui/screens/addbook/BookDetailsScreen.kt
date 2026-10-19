@@ -25,6 +25,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -33,14 +34,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.fivepages.model.Book
 import com.example.fivepages.model.dailyGoal
+import com.example.fivepages.ui.theme.FivePagesTheme
 
 @Composable
 fun BookDetailsScreen(
     book: Book,
     onBack: () -> Unit,
+    onStartSession: () -> Unit,
     onLogPages: () -> Unit,
 ) {
     val colors = MaterialTheme.colorScheme
@@ -80,9 +84,16 @@ fun BookDetailsScreen(
             }
         },
         bottomBar = {
-            Column(Modifier.background(colors.background).navigationBarsPadding().padding(20.dp)) {
+            Column(
+                Modifier
+                    .background(colors.background)
+                    .navigationBarsPadding()
+                    .padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                // Starts the reading session timer
                 Button(
-                    onClick = onLogPages,
+                    onClick = onStartSession, //on-start session wire
                     enabled = pagesLeft > 0,
                     shape = RoundedCornerShape(14.dp),
                     colors = ButtonDefaults.buttonColors(
@@ -91,8 +102,33 @@ fun BookDetailsScreen(
                         disabledContainerColor = colors.surfaceVariant,
                         disabledContentColor = colors.onSurfaceVariant,
                     ),
-                    modifier = Modifier.fillMaxWidth().height(52.dp),
-                ) { Text(if (pagesLeft > 0) "Log pages manually" else "Book finished", style = MaterialTheme.typography.titleSmall) }
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp),
+                ) {
+                    Text(
+                        text = if (pagesLeft > 0) "Start Reading Session" else "Book finished",
+                        style = MaterialTheme.typography.titleSmall
+                    )
+                }
+
+                // Manual Page Logging
+                if (pagesLeft > 0) {
+                    OutlinedButton(
+                        onClick = onLogPages, // on-log session wire
+                        shape = RoundedCornerShape(14.dp),
+                        border = BorderStroke(1.dp, colors.primary),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp),
+                    ) {
+                        Text(
+                            text = "Log pages manually",
+                            style = MaterialTheme.typography.titleSmall,
+                            color = colors.primary
+                        )
+                    }
+                }
             }
         },
     ) { padding ->
@@ -130,4 +166,23 @@ private fun remainingDays(targetDateMillis: Long): Int {
     val diffMs = targetDateMillis - System.currentTimeMillis()
     val days = (diffMs / (1000 * 60 * 60 * 24)).toInt() + 1
     return if (days > 0) days else 1
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun BookDetailsPreview() {
+    FivePagesTheme {
+        BookDetailsScreen(
+            book = Book(
+                id = 1,
+                title = "Before the Coffee Gets Cold",
+                totalPages = 280,
+                pagesRead = 120,
+                targetDateMillis = System.currentTimeMillis() + (7L * 24 * 60 * 60 * 1000)
+            ),
+            onBack = {},
+            onStartSession = {}, //mock callback in Preview
+            onLogPages = {}
+        )
+    }
 }
