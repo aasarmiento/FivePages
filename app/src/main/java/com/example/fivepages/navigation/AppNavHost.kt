@@ -25,7 +25,6 @@ import com.example.fivepages.ui.screens.onboarding.WelcomeScreen
 import com.example.fivepages.ui.screens.onboarding.rememberNotificationPermission
 import com.example.fivepages.ui.screens.settings.SettingsScreen
 import androidx.compose.runtime.remember
-import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.example.fivepages.ui.screens.settings.ReminderWindowScreen
 
@@ -96,6 +95,7 @@ fun AppNavHost(appState: AppState) {
                     if (tab == "Settings") {
                         navController.navigate(Routes.SETTINGS) { launchSingleTop = true }
                     }
+                },
                 onReadBook = { bookId: Int ->
                     navController.navigate(Routes.bookDetail(bookId)) { launchSingleTop = true }
                 }
@@ -142,6 +142,10 @@ fun AppNavHost(appState: AppState) {
                 onBack = { navController.goBack() },
                 onSave = { label, hour, minute, enabled -> appState.saveReminder(id, label, hour, minute, enabled) },
                 onDelete = { appState.deleteReminder(id) }
+            )
+        }
+
+        //BOOK DETAIL
         composable(
             Routes.BOOK_DETAIL,
             arguments = listOf(navArgument("bookId") { type = NavType.IntType })
