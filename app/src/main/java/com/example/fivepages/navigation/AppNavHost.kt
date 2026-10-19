@@ -8,12 +8,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.navigation.NavController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.fivepages.LibraryEmptyScreen
 import com.example.fivepages.state.AppState
 import com.example.fivepages.ui.screens.addbook.AddBookScreen
+import com.example.fivepages.ui.screens.addbook.BookDetailsScreen
+import com.example.fivepages.ui.screens.addbook.LogPagesScreen
 import com.example.fivepages.ui.screens.onboarding.HowItWorksScreen
 import com.example.fivepages.ui.screens.onboarding.NotificationsScreen
 import com.example.fivepages.ui.screens.onboarding.RemindersOnDialog
@@ -76,12 +80,15 @@ fun AppNavHost(appState: AppState) {
                 })
             }
         }
-
+        //LIBRARY ROUTES
         composable(Routes.LIBRARY) {
             LibraryEmptyScreen(
                 books = appState.books,
                 onAddBook = {
                     navController.navigate(Routes.ADD_BOOK) { launchSingleTop = true }
+                },
+                onReadBook = { bookId: Int ->
+                    navController.navigate(Routes.bookDetail(bookId)) { launchSingleTop = true }
                 }
             )
         }
@@ -94,6 +101,38 @@ fun AppNavHost(appState: AppState) {
                 }
             )
         }
+
+        composable(
+            Routes.BOOK_DETAIL,
+            arguments = listOf(navArgument("bookId") { type = NavType.IntType })
+        ) { entry ->
+            val bookId = entry.arguments?.getInt("bookId") ?: return@composable
+            val book = appState.books.firstOrNull { it.id == bookId } ?: return@composable
+            BookDetailsScreen(
+                book = book,
+                onBack = { navController.goBack() },
+                onLogPages = {
+                    navController.navigate(Routes.logPages(bookId)) { launchSingleTop = true }
+                }
+            )
+        }
+
+        //WORKFLOW
+        composable(
+            Routes.LOG_PAGES,
+            arguments = listOf(navArgument("bookId") { type = NavType.IntType })
+        ) { entry ->
+            val bookId = entry.arguments?.getInt("bookId") ?: return@composable
+            val book = appState.books.firstOrNull { it.id == bookId } ?: return@composable
+            LogPagesScreen(
+                book = book,
+                onSave = { pages: Int ->
+                    appState.logPages(bookId, pages)
+                    navController.goBack()
+                }
+            )
+        }
     }
 }
+
 
