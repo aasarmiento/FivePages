@@ -1,6 +1,7 @@
 package com.example.fivepages.ui.screens.addbook
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,10 +33,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.fivepages.R
 import com.example.fivepages.model.Book
 import com.example.fivepages.model.dailyGoal
 import com.example.fivepages.ui.theme.FivePagesTheme
@@ -135,7 +140,17 @@ fun BookDetailsScreen(
         Column(
             Modifier.padding(padding).fillMaxSize().padding(horizontal = 20.dp, vertical = 24.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Image(
+                painter = painterResource(id = R.drawable.tkawaguchi),
+                contentDescription = "Cover for ${book.title}",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .width(120.dp)
+                    .height(180.dp)
+                    .clip(RoundedCornerShape(12.dp))
+            )
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("$percent% read", style = MaterialTheme.typography.labelLarge, color = colors.onSurface)
                 LinearProgressIndicator(

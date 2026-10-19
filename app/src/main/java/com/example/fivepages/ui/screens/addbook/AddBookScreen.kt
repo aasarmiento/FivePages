@@ -1,6 +1,7 @@
 package com.example.fivepages.ui.screens.addbook
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -49,11 +50,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.fivepages.R
 import com.example.fivepages.model.dailyGoal
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -270,7 +273,11 @@ private fun GoalCard(perDay: Int, pages: Int, days: Int) {
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text("🦉", fontSize = 48.sp)
+        Image(
+            painter = painterResource(id = R.drawable.fivepages_owl1),
+            contentDescription = "FivePages Owl",
+            modifier = Modifier.size(48.dp)
+        )
         Spacer(Modifier.width(16.dp))
         Column {
             Text(
