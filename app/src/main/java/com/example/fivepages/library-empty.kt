@@ -2,6 +2,7 @@ package com.example.fivepages
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -64,6 +65,7 @@ private enum class Tab(val label: String, val icon: ImageVector) {
 fun LibraryEmptyScreen(
     books: List<Book> = emptyList(),
     onAddBook: () -> Unit,
+    onReadBook: (Int) -> Unit = {},
     onTabSelected: (String) -> Unit = {},
 ) {
     val colors = MaterialTheme.colorScheme
@@ -129,7 +131,10 @@ fun LibraryEmptyScreen(
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
                 items(books, key = { it.id }) { book ->
-                    BookCard(book = book)
+                    BookCard(
+                        book = book,
+                        onClick = { onReadBook(book.id) }
+                    )
                 }
             }
         }
@@ -137,7 +142,8 @@ fun LibraryEmptyScreen(
 }
 
 @Composable
-private fun BookCard(book: Book) {
+private fun BookCard(book: Book,
+                     onClick: () -> Unit) {
     val colors = MaterialTheme.colorScheme
     val progress = if (book.totalPages > 0) book.pagesRead.toFloat() / book.totalPages else 0f
 
@@ -150,6 +156,8 @@ private fun BookCard(book: Book) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .clickable { onClick() }
             .background(colors.surface, RoundedCornerShape(16.dp))
             .border(1.dp, colors.outline, RoundedCornerShape(16.dp))
             .padding(16.dp)
