@@ -7,8 +7,10 @@ object Routes {
     // Book Progress Routes
     const val BOOK_DETAIL = "book_detail/{bookId}"
     const val LOG_PAGES = "log_pages/{bookId}"
+    const val READING_SESSION = "reading_session/{bookId}"
     fun bookDetail(bookId: Int) = "book_detail/$bookId"
     fun logPages(bookId: Int) = "log_pages/$bookId"
+    fun readingSession(bookId: Int) = "reading_session/$bookId"
 
     //Onboarding Screens
     const val ONBOARDING_WELCOME = "onboarding_welcome"

@@ -25,6 +25,7 @@ import com.example.fivepages.ui.screens.onboarding.WelcomeScreen
 import com.example.fivepages.ui.screens.onboarding.rememberNotificationPermission
 import com.example.fivepages.ui.screens.settings.SettingsScreen
 import androidx.compose.runtime.remember
+import com.example.fivepages.ui.screens.addbook.ReadingSessionScreen
 import com.example.fivepages.ui.screens.settings.ReminderWindowScreen
 
 // Safe na Back: pop lang kung may previous screen, para hindi ma-pop ang start screen
@@ -154,9 +155,31 @@ fun AppNavHost(appState: AppState) {
             BookDetailsScreen(
                 book = book,
                 onBack = { navController.goBack() },
+
+                onStartSession = {
+                    navController.navigate(Routes.readingSession(bookId)) { launchSingleTop = true }
+                },
                 onLogPages = {
                     navController.navigate(Routes.logPages(bookId)) { launchSingleTop = true }
                 }
+            )
+        }
+
+        //TIMER
+        composable(
+            Routes.READING_SESSION,
+            arguments = listOf(navArgument("bookId") { type = NavType.IntType })
+        ) { entry ->
+            val bookId = entry.arguments?.getInt("bookId") ?: return@composable
+
+            ReadingSessionScreen(
+                onComplete = {
+                    navController.navigate(Routes.logPages(bookId)) {
+                        popUpTo(Routes.READING_SESSION) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
+                onDiscard = { navController.goBack() },
             )
         }
 
