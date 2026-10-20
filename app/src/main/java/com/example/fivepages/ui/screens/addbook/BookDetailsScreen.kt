@@ -31,6 +31,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -53,6 +57,7 @@ fun BookDetailsScreen(
     onLogPages: () -> Unit,
 ) {
     val colors = MaterialTheme.colorScheme
+    var showStart by remember { mutableStateOf(false) }
     val pagesLeft = (book.totalPages - book.pagesRead).coerceAtLeast(0)
     val percent = if (book.totalPages > 0) book.pagesRead * 100 / book.totalPages else 0
     val goal = dailyGoal(pagesLeft, remainingDays(book.targetDateMillis))
@@ -98,7 +103,7 @@ fun BookDetailsScreen(
             ) {
                 // Starts the reading session timer
                 Button(
-                    onClick = onStartSession, //on-start session wire
+                    onClick = { showStart = true }, //on-start session wire
                     enabled = pagesLeft > 0,
                     shape = RoundedCornerShape(14.dp),
                     colors = ButtonDefaults.buttonColors(
@@ -117,10 +122,10 @@ fun BookDetailsScreen(
                     )
                 }
 
-                // Manual Page Logging
+
                 if (pagesLeft > 0) {
                     OutlinedButton(
-                        onClick = onLogPages, // on-log session wire
+                        onClick = onLogPages,
                         shape = RoundedCornerShape(14.dp),
                         border = BorderStroke(1.dp, colors.primary),
                         modifier = Modifier
@@ -167,6 +172,13 @@ fun BookDetailsScreen(
             }
         }
     }
+
+    if (showStart) {
+        StartSessionDialog(
+            onStart = { showStart = false; onStartSession() },
+            onCancel = { showStart = false }
+        )
+    }
 }
 
 @Composable
@@ -196,7 +208,7 @@ private fun BookDetailsPreview() {
                 targetDateMillis = System.currentTimeMillis() + (7L * 24 * 60 * 60 * 1000)
             ),
             onBack = {},
-            onStartSession = {}, //mock callback in Preview
+            onStartSession = {},
             onLogPages = {}
         )
     }

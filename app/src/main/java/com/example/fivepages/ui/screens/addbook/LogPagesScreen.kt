@@ -42,7 +42,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.fivepages.model.Book
-import com.example.fivepages.model.dailyGoal
 
 @Composable
 fun LogPagesScreen(
@@ -53,13 +52,7 @@ fun LogPagesScreen(
     val colors = MaterialTheme.colorScheme
     val pagesLeft = (book.totalPages - book.pagesRead).coerceAtLeast(0)
 
-    val initialGoal = remember(book) {
-        val diffMs = book.targetDateMillis - System.currentTimeMillis()
-        val days = ((diffMs / (1000 * 60 * 60 * 24)).toInt() + 1).coerceAtLeast(1)
-        dailyGoal(pagesLeft, days).coerceIn(1, pagesLeft.coerceAtLeast(1))
-    }
-
-    var pagesToLog by remember { mutableStateOf(initialGoal) }
+    var pagesToLog by remember { mutableStateOf(0) }
 
     Scaffold(
         containerColor = colors.background,
@@ -152,8 +145,8 @@ fun LogPagesScreen(
                 horizontalArrangement = Arrangement.spacedBy(24.dp)
             ) {
                 OutlinedIconButton(
-                    onClick = { if (pagesToLog > 1) pagesToLog-- },
-                    enabled = pagesToLog > 1,
+                    onClick = { if (pagesToLog > 0) pagesToLog-- },
+                    enabled = pagesToLog > 0,
                     shape = CircleShape,
                     modifier = Modifier.size(56.dp)
                 ) {

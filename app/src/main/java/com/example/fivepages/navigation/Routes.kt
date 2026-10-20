@@ -26,4 +26,8 @@ object Routes {
     const val REMINDER_WINDOW = "reminder_window/{$REMINDER_ID_ARG}"
     fun reminderWindow(id: Int) = "reminder_window/$id"
 
-    }
+    const val PAGES_ARG = "pages"
+    const val SESSION_LOGGED = "session_logged/{$PAGES_ARG}"
+    fun sessionLogged(pages: Int) = "session_logged/$pages"
+
+}
