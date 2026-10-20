@@ -47,4 +47,22 @@ class AppState {
         val b = books[i]
         books[i] = b.copy(pagesRead = (b.pagesRead + pages).coerceAtMost(b.totalPages))
     }
+
+    fun titleExists(title: String, exceptId: Int? = null): Boolean {
+        val wanted = normalizeTitle(title)
+        return books.any { it.id != exceptId && normalizeTitle(it.title) == wanted }
+    }
+
+    private fun normalizeTitle(title: String): String =
+        title.trim().replace(Regex("\\s+"), " ").lowercase()
+
+    fun renameBook(bookId: Int, newTitle: String) {
+        val i = books.indexOfFirst { it.id == bookId }
+        if (i < 0 || newTitle.isBlank() || titleExists(newTitle, bookId)) return
+        books[i] = books[i].copy(title = newTitle.trim())
+    }
+
+    fun deleteBook(bookId: Int) {
+        books.removeAll { it.id == bookId }
+    }
 }

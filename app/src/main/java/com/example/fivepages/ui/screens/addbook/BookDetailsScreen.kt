@@ -20,10 +20,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -55,6 +57,7 @@ fun BookDetailsScreen(
     onBack: () -> Unit,
     onStartSession: () -> Unit,
     onLogPages: () -> Unit,
+    onOptions: () -> Unit,
 ) {
     val colors = MaterialTheme.colorScheme
     var showStart by remember { mutableStateOf(false) }
@@ -88,7 +91,11 @@ fun BookDetailsScreen(
                         color = colors.onBackground,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f),
                     )
+                    IconButton(onClick = onOptions) {
+                        Icon(Icons.Filled.MoreVert, contentDescription = "Book options", tint = colors.onSurface)
+                    }
                 }
                 HorizontalDivider(color = colors.outline)
             }
@@ -122,10 +129,10 @@ fun BookDetailsScreen(
                     )
                 }
 
-
+                // Manual Page Logging
                 if (pagesLeft > 0) {
                     OutlinedButton(
-                        onClick = onLogPages,
+                        onClick = onLogPages, // on-log session wire
                         shape = RoundedCornerShape(14.dp),
                         border = BorderStroke(1.dp, colors.primary),
                         modifier = Modifier
@@ -208,8 +215,9 @@ private fun BookDetailsPreview() {
                 targetDateMillis = System.currentTimeMillis() + (7L * 24 * 60 * 60 * 1000)
             ),
             onBack = {},
-            onStartSession = {},
-            onLogPages = {}
+            onStartSession = {}, //mock callback in Preview
+            onLogPages = {},
+            onOptions = {}
         )
     }
 }

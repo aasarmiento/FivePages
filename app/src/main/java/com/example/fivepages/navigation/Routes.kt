@@ -11,6 +11,10 @@ object Routes {
     fun bookDetail(bookId: Int) = "book_detail/$bookId"
     fun logPages(bookId: Int) = "log_pages/$bookId"
     fun readingSession(bookId: Int) = "reading_session/$bookId"
+    const val BOOK_OPTIONS = "book_options/{bookId}"
+    const val EDIT_TITLE = "edit_title/{bookId}"
+    fun bookOptions(bookId: Int) = "book_options/$bookId"
+    fun editTitle(bookId: Int) = "edit_title/$bookId"
 
     //Onboarding Screens
     const val ONBOARDING_WELCOME = "onboarding_welcome"

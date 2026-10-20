@@ -27,6 +27,8 @@ import com.example.fivepages.ui.screens.settings.SettingsScreen
 import androidx.compose.runtime.remember
 import com.example.fivepages.ui.screens.addbook.ReadingSessionScreen
 import com.example.fivepages.ui.screens.addbook.SessionLoggedScreen
+import com.example.fivepages.ui.screens.bookoptions.BookOptionsScreen
+import com.example.fivepages.ui.screens.bookoptions.EditTitleScreen
 import com.example.fivepages.ui.screens.settings.ReminderWindowScreen
 
 // Safe na Back: pop lang kung may previous screen, para hindi ma-pop ang start screen
@@ -108,8 +110,8 @@ fun AppNavHost(appState: AppState) {
                 onBack = { navController.goBack() },
                 onSave = { title, totalPages, targetDateMillis ->
                     appState.addBook(title, totalPages, targetDateMillis)
-                    navController.goBack()
-                }
+                },
+                isTitleTaken = { appState.titleExists(it) }
             )
         }
 
@@ -162,6 +164,9 @@ fun AppNavHost(appState: AppState) {
                 },
                 onLogPages = {
                     navController.navigate(Routes.logPages(bookId)) { launchSingleTop = true }
+                },
+                onOptions = {
+                    navController.navigate(Routes.bookOptions(bookId)) { launchSingleTop = true }
                 }
             )
         }
@@ -212,6 +217,38 @@ fun AppNavHost(appState: AppState) {
             SessionLoggedScreen(
                 pagesAdded = pages,
                 onReturnToLibrary = { navController.popBackStack(Routes.LIBRARY, inclusive = false) }
+            )
+        }
+
+        composable(
+            Routes.BOOK_OPTIONS,
+            arguments = listOf(navArgument("bookId") { type = NavType.IntType })
+        ) { entry ->
+            val bookId = entry.arguments?.getInt("bookId") ?: return@composable
+            val firstSeen = remember { appState.books.firstOrNull { it.id == bookId } } ?: return@composable
+            val title = appState.books.firstOrNull { it.id == bookId }?.title ?: firstSeen.title
+            BookOptionsScreen(
+                bookTitle = title,
+                onBack = { navController.goBack() },
+                onEditTitle = {
+                    navController.navigate(Routes.editTitle(bookId)) { launchSingleTop = true }
+                },
+                onDeleteConfirmed = { appState.deleteBook(bookId) },
+                onDeletedDone = { navController.popBackStack(Routes.LIBRARY, inclusive = false) }
+            )
+        }
+
+        composable(
+            Routes.EDIT_TITLE,
+            arguments = listOf(navArgument("bookId") { type = NavType.IntType })
+        ) { entry ->
+            val bookId = entry.arguments?.getInt("bookId") ?: return@composable
+            val book = appState.books.firstOrNull { it.id == bookId } ?: return@composable
+            EditTitleScreen(
+                currentTitle = book.title,
+                onBack = { navController.goBack() },
+                onSave = { newTitle -> appState.renameBook(bookId, newTitle) },
+                isTitleTaken = { appState.titleExists(it, exceptId = bookId) }
             )
         }
     }

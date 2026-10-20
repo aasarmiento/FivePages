@@ -71,6 +71,7 @@ private val DateFmt = SimpleDateFormat("MM / dd / yyyy", Locale.US).apply {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddBookScreen(onBack: () -> Unit, onSave: (title: String, totalPages: Int, targetDateMillis: Long) -> Unit,
+                  isTitleTaken: (String) -> Boolean = { false },
 ) {
 
     val colors = MaterialTheme.colorScheme
@@ -80,6 +81,7 @@ fun AddBookScreen(onBack: () -> Unit, onSave: (title: String, totalPages: Int, t
     var pagesText by remember { mutableStateOf("") }
     var targetDateMillis by remember { mutableStateOf<Long?>(null) }
     var showPicker by remember { mutableStateOf(false) }
+    var showAdded by remember { mutableStateOf(false) }
     val formattedDate = targetDateMillis?.let { DateFmt.format(Date(it)) } ?: ""
 
     val pages = pagesText.toIntOrNull() ?: 0
@@ -94,7 +96,8 @@ fun AddBookScreen(onBack: () -> Unit, onSave: (title: String, totalPages: Int, t
         } ?: 0
     }
     val perDay = if (pages > 0 && daysLeft > 0) dailyGoal(pages, daysLeft) else 0
-    val isFormValid = title.isNotBlank() && pages > 0 && targetDateMillis != null
+    val titleTaken = title.isNotBlank() && isTitleTaken(title)
+    val isFormValid = title.isNotBlank() && !titleTaken && pages > 0 && targetDateMillis != null
 
 
     Scaffold(
@@ -143,11 +146,14 @@ fun AddBookScreen(onBack: () -> Unit, onSave: (title: String, totalPages: Int, t
             ) {
                 Button(
                     onClick = {
-                        targetDateMillis?.let { targetMillis ->
-                            onSave(title.trim(), pages, targetMillis)
+                        if (!showAdded) {
+                            targetDateMillis?.let { targetMillis ->
+                                onSave(title.trim(), pages, targetMillis)
+                                showAdded = true
+                            }
                         }
                     },
-                    enabled = isFormValid,
+                    enabled = isFormValid && !showAdded,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(52.dp),
@@ -181,7 +187,9 @@ fun AddBookScreen(onBack: () -> Unit, onSave: (title: String, totalPages: Int, t
                 FpTextField(
                     value = title,
                     onChange = { title = it },
-                    placeholder = "e.g. Before the Coffee Gets Cold"
+                    placeholder = "e.g. Before the Coffee Gets Cold",
+                    isError = titleTaken,
+                    errorText = if (titleTaken) "You already have a book with this title" else null
                 )
             }
 
@@ -258,6 +266,16 @@ fun AddBookScreen(onBack: () -> Unit, onSave: (title: String, totalPages: Int, t
             DatePicker(state = pickerState)
         }
     }
+
+    if (showAdded) {
+        BookAddedDialog(
+            title = title.trim(),
+            perDay = perDay,
+            pages = pages,
+            days = daysLeft,
+            onDone = onBack
+        )
+    }
 }
 
 @Composable
@@ -320,6 +338,8 @@ private fun FpTextField(
     keyboard: KeyboardOptions = KeyboardOptions.Default,
     readOnly: Boolean = false,
     trailing: (@Composable () -> Unit)? = null,
+    isError: Boolean = false,
+    errorText: String? = null,
 ) {
     val colors = MaterialTheme.colorScheme
     OutlinedTextField(
@@ -337,6 +357,10 @@ private fun FpTextField(
             )
         },
         trailingIcon = trailing,
+        isError = isError,
+        supportingText = if (errorText != null) {
+            { Text(errorText) }
+        } else null,
         shape = RoundedCornerShape(14.dp),
         textStyle = MaterialTheme.typography.bodyLarge.copy(color = colors.onSurface),
         colors = OutlinedTextFieldDefaults.colors(
@@ -349,4 +373,3 @@ private fun FpTextField(
         modifier = Modifier.fillMaxWidth(),
     )
 }
-

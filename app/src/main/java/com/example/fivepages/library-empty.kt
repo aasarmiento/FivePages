@@ -21,23 +21,30 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MenuBook
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShowChart
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -60,6 +67,12 @@ private enum class Tab(val label: String, val icon: ImageVector) {
     Settings("Settings", Icons.Filled.Settings),
 }
 
+private enum class SortOrder(val label: String) {
+    Newest("Newest"),
+    Oldest("Oldest"),
+    AToZ("A to Z"),
+}
+
 
 @Composable
 fun LibraryEmptyScreen(
@@ -70,6 +83,8 @@ fun LibraryEmptyScreen(
 ) {
     val colors = MaterialTheme.colorScheme
     var selected by remember { mutableStateOf(Tab.Library) }
+    var query by rememberSaveable { mutableStateOf("") }
+    var sort by rememberSaveable { mutableStateOf(SortOrder.Newest) }
 
     Scaffold(
         containerColor = colors.background,
@@ -123,18 +138,108 @@ fun LibraryEmptyScreen(
         if (books.isEmpty()) {
             EmptyLibraryState(Modifier.padding(padding).fillMaxSize())
         } else {
-            LazyColumn(
+            val visibleBooks = books
+                .filter { it.title.contains(query.trim(), ignoreCase = true) }
+                .let { list ->
+                    when (sort) {
+                        SortOrder.Newest -> list.sortedByDescending { it.id }
+                        SortOrder.Oldest -> list.sortedBy { it.id }
+                        SortOrder.AToZ -> list.sortedBy { it.title.lowercase() }
+                    }
+                }
+            val countText = if (query.isBlank()) {
+                "${books.size} ${if (books.size == 1) "book" else "books"}"
+            } else {
+                "${visibleBooks.size} found"
+            }
+
+            Column(
                 modifier = Modifier
                     .padding(padding)
-                    .fillMaxSize(),
-                contentPadding = PaddingValues(20.dp),
-                verticalArrangement = Arrangement.spacedBy(14.dp)
+                    .fillMaxSize()
             ) {
-                items(books, key = { it.id }) { book ->
-                    BookCard(
-                        book = book,
-                        onClick = { onReadBook(book.id) }
+                Column(Modifier.padding(start = 20.dp, end = 20.dp, top = 16.dp)) {
+                    OutlinedTextField(
+                        value = query,
+                        onValueChange = { query = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        textStyle = MaterialTheme.typography.bodyLarge,
+                        placeholder = {
+                            Text(
+                                "Search Books",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = colors.onSurfaceVariant
+                            )
+                        },
+                        leadingIcon = {
+                            Icon(Icons.Filled.Search, contentDescription = null, tint = colors.onSurfaceVariant)
+                        },
+                        trailingIcon = {
+                            if (query.isNotEmpty()) {
+                                IconButton(onClick = { query = "" }) {
+                                    Icon(
+                                        Icons.Filled.Close,
+                                        contentDescription = "Clear search",
+                                        tint = colors.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        },
+                        shape = RoundedCornerShape(24.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = colors.surface,
+                            unfocusedContainerColor = colors.surface,
+                            focusedBorderColor = colors.primary,
+                            unfocusedBorderColor = colors.outline,
+                            cursorColor = colors.primary,
+                        ),
                     )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            countText,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = colors.onSurfaceVariant
+                        )
+                        TextButton(
+                            onClick = { sort = SortOrder.entries[(sort.ordinal + 1) % SortOrder.entries.size] }
+                        ) {
+                            Text(
+                                "Sort: ${sort.label}",
+                                style = MaterialTheme.typography.labelLarge,
+                                color = colors.primary
+                            )
+                        }
+                    }
+                }
+
+                if (visibleBooks.isEmpty()) {
+                    Text(
+                        "No books match \"${query.trim()}\"",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = colors.onSurfaceVariant,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(40.dp)
+                    )
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(20.dp),
+                        verticalArrangement = Arrangement.spacedBy(14.dp)
+                    ) {
+                        items(visibleBooks, key = { it.id }) { book ->
+                            BookCard(
+                                book = book,
+                                onClick = { onReadBook(book.id) }
+                            )
+                        }
+                    }
                 }
             }
         }
