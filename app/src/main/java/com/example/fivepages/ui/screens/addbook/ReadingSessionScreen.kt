@@ -57,6 +57,7 @@ fun ReadingSessionScreen(
     var runStartedAt by rememberSaveable { mutableLongStateOf(System.currentTimeMillis()) } // starts running immediately
     var running by rememberSaveable { mutableStateOf(true) }
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    var showDiscard by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(running) {
         while (running) {
@@ -141,7 +142,7 @@ fun ReadingSessionScreen(
                 )
             }
             Spacer(Modifier.height(20.dp))
-            TextButton(onClick = onDiscard) {
+            TextButton(onClick = { showDiscard = true }) {
                 Text(
                     buildAnnotatedString {
                         withStyle(SpanStyle(textDecoration = TextDecoration.Underline, fontStyle = FontStyle.Italic)) {
@@ -153,6 +154,13 @@ fun ReadingSessionScreen(
                 )
             }
         }
+    }
+
+    if (showDiscard) {
+        DiscardSessionDialog(
+            onKeep = { showDiscard = false },
+            onDiscard = { showDiscard = false; onDiscard() }
+        )
     }
 }
 
