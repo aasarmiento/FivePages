@@ -1,0 +1,440 @@
+<p align="center">
+  <img src="docs/assets/banner.svg" alt="FivePages: a little reading, every day" width="100%">
+</p>
+
+<p align="center">
+  <img alt="Kotlin" src="https://img.shields.io/badge/Kotlin-1.9.0-7F52FF?logo=kotlin&logoColor=white">
+  <img alt="Jetpack Compose" src="https://img.shields.io/badge/Jetpack%20Compose-Material%203-2E6F40?logo=jetpackcompose&logoColor=white">
+  <img alt="Room" src="https://img.shields.io/badge/Room-2.6.1-4285F4">
+  <img alt="minSdk" src="https://img.shields.io/badge/minSdk-24-555">
+  <img alt="Unit tests" src="https://img.shields.io/badge/unit%20tests-33%20passing-2E6F40">
+  <img alt="Storage" src="https://img.shields.io/badge/storage-local%20only-555">
+</p>
+
+# FivePages
+
+FivePages is a small reading tracker for people who find a thick book scary. You add a book, pick a finish date, and the app tells you how many pages to read today. Usually it is about five. You read, log your pages, and watch your streak grow.
+
+Everything stays on the phone. No account, no internet, no ads.
+
+**Course:** MO-IT114 Mobile Development Fundamentals, MMDC
+**Milestone:** 2, functional Jetpack Compose UI built from our Figma prototype
+**Group:** Mobile Dev Fundamentals Grp 1
+
+## The team
+
+| Member | GitHub branch work (fill in) |
+|---|---|
+| Franzie Frielle Mangalindan | |
+| Sire Ermond Manalo | |
+| Abigail Ann Sarmiento | Book options, session history, streak grace screens, theme, shared components, tests, docs |
+| Christian Allen Soriano | |
+
+> Each member should list their own screens and commits in the right column before submission.
+
+---
+
+## Contents
+
+1. [See it work](#see-it-work)
+2. [Features](#features)
+3. [Project layout](#project-layout)
+4. [How the app is built](#how-the-app-is-built)
+5. [The streak logic](#the-streak-logic)
+6. [Design system](#design-system)
+7. [Run it](#run-it)
+8. [Testing](#testing)
+9. [Modularity: shared components](#modularity-shared-components)
+10. [User testing](#user-testing)
+11. [Rubric evidence](#rubric-evidence)
+12. [Beyond the Figma](#beyond-the-figma)
+13. [Known limits](#known-limits)
+
+---
+
+## See it work
+
+The dot below walks through the main flow. The full screen list is in the next section.
+
+<p align="center">
+  <img src="docs/assets/flow.svg" alt="Animated main user flow of FivePages" width="100%">
+</p>
+
+The same flow as a diagram that shows the branches:
+
+```mermaid
+flowchart LR
+    A([Welcome]) --> B[How it works] --> C[Reminders permission]
+    C --> L[My books]
+    L -->|Add| AB[Add a book]
+    AB --> BA{{Book added}} --> BD
+    L -->|Tap a book| BD[Book details]
+    BD -->|Start session| RS[Reading timer]
+    RS --> LP[Log pages]
+    LP --> SL[Session logged: Nice one!]
+    SL --> BD
+    BD -->|Options| BO[Book options]
+    BO --> ET[Edit title] --> L
+    BO --> EG[Edit goal] --> L
+    BO --> SH[Session history]
+    BO --> DB{{Delete book?}} --> L
+    L -->|Bottom bar| P[Progress]
+    L -->|Bottom bar| S[Settings] --> RW[Reminder window]
+    P --> MY[Missed yesterday] --> GD[Grace day used]
+    MY --> FS[Fresh start] --> L
+```
+
+---
+
+## Features
+
+Every row is a screen or behaviour from the Figma file, and each one works in the app, not only on screen.
+
+| Area | What it does |
+|---|---|
+| Onboarding | Welcome, how it works, reminder permission. Shown once, then remembered. |
+| My books | List with search and sort, empty state, bottom bar. |
+| Add a book | Title, total pages, finish date. Shows the daily goal as you type. Blocks empty titles and duplicates. |
+| Book details | Percent done, segment bar, pages left, days left, today's goal. |
+| Reading session | Timer, pause, finish, discard confirmation. |
+| Log pages | Enter pages read, Nice one! screen, undo the last session. |
+| Book options | Edit title, edit goal, delete book, each with its own confirm dialog. |
+| Session history | Every session for a book, newest first, with date, pages and time spent. |
+| Progress | Streak, this week chart, sessions this month, active books. |
+| Missed yesterday | Offers to use a streak freeze. |
+| Streak freeze | One free grace day per month. It saves the streak but does not add to it. |
+| Fresh start | Choose to begin again when the streak cannot be saved. |
+| Settings | Reminder list with on and off switches. |
+| Reminder window | Add, edit and delete a reminder time. |
+| Preview link | On Progress, opens the Missed yesterday screen without changing any data. |
+
+---
+
+## Project layout
+
+The app is one Gradle module. Files are grouped by job, not by who wrote them.
+
+```text
+FivePages/
+├── README.md
+├── docs/
+│   ├── TEST_CASES.md              manual test-case table
+│   ├── USER_TESTING.md            script and results for the classmate sessions
+│   └── assets/
+│       ├── banner.svg             animated header
+│       └── flow.svg               animated user flow
+├── build.gradle.kts
+├── settings.gradle.kts
+├── gradle/libs.versions.toml      version catalog
+└── app/
+    ├── build.gradle.kts
+    └── src/
+        ├── main/
+        │   ├── AndroidManifest.xml
+        │   ├── res/
+        │   │   ├── drawable/      streak_shield, streak_comet, streak_fresh_start, icons
+        │   │   └── font/          Fraunces, DM Sans, Inter
+        │   └── java/com/example/fivepages/
+        │       ├── MainActivity.kt          entry point, applies the theme, hosts the NavHost
+        │       ├── library-empty.kt         My books screen and its empty state
+        │       │
+        │       ├── navigation/
+        │       │   ├── Routes.kt            every route name and its builder
+        │       │   └── AppNavHost.kt        the single NavHost that wires screens together
+        │       │
+        │       ├── state/
+        │       │   └── AppState.kt          AndroidViewModel: one source of truth for the UI
+        │       │
+        │       ├── data/                    Room database
+        │       │   ├── Entities.kt          books, sessions, reminders
+        │       │   ├── AppDao.kt            queries
+        │       │   └── FivePagesDatabase.kt
+        │       │
+        │       ├── model/                   pure Kotlin, no Android, fully unit tested
+        │       │   ├── Book.kt
+        │       │   ├── SessionLog.kt
+        │       │   ├── ReminderWindow.kt
+        │       │   ├── ProgressStats.kt     streak, week chart, month count, summary
+        │       │   ├── StreakGrace.kt       freeze and missed-yesterday rules
+        │       │   ├── SessionHistory.kt    history rows, duration and date text
+        │       │   └── RemainingDays.kt     days left and the daily goal
+        │       │
+        │       └── ui/
+        │           ├── theme/               Color.kt, Theme.kt, Type.kt
+        │           ├── components/          shared building blocks (see below)
+        │           │   ├── AppButtons.kt    PrimaryButton, OutlineButton, CircleIconButton
+        │           │   ├── AppTopBar.kt     BackTopBar, TitleTopBar
+        │           │   ├── AppBottomBar.kt  AppBottomBar, AppTab
+        │           │   └── AppDialog.kt     AppDialog and its button variants
+        │           └── screens/
+        │               ├── addbook/         AddBookScreen, BookAddedDialog, BookDetailsScreen,
+        │               │                    LogPagesScreen, ReadingSessionScreen,
+        │               │                    SessionLoggedScreen, StartSessionDialog
+        │               ├── bookoptions/     BookOptionsScreen, EditTitleScreen, EditGoalScreen,
+        │               │                    SessionHistoryScreen, Delete/Updated dialogs
+        │               ├── progress/        ProgressScreen, StreakGraceScreens
+        │               ├── settings/        SettingsScreen, ReminderWindowScreen
+        │               └── (onboarding and reminder dialogs from the team's other branches)
+        │
+        ├── test/java/com/example/fivepages/model/
+        │   ├── ProgressStatsTest.kt         11 tests
+        │   ├── StreakGraceTest.kt           11 tests
+        │   ├── SessionHistoryTest.kt         8 tests
+        │   └── DailyGoalTest.kt              2 tests
+        │   (ExampleUnitTest.kt, 1 template test, sits one folder up)
+        └── androidTest/                     instrumented test template
+```
+
+---
+
+## How the app is built
+
+```mermaid
+flowchart TB
+    subgraph UI["ui: Jetpack Compose"]
+        SCR[Screens]
+        CMP[Shared components]
+        THM[Theme]
+        SCR --> CMP
+        SCR --> THM
+    end
+    NAV[navigation: AppNavHost + Routes]
+    ST["state: AppState (ViewModel)"]
+    subgraph MOD["model: pure functions"]
+        PS[ProgressStats]
+        SG[StreakGrace]
+        SHx[SessionHistory]
+        RD[RemainingDays]
+    end
+    subgraph DATA["data: Room"]
+        DAO[AppDao]
+        DB[(SQLite)]
+        DAO --> DB
+    end
+    PREF[(SharedPreferences)]
+
+    NAV --> SCR
+    SCR -- reads lists, calls actions --> ST
+    ST --> MOD
+    ST -- serial write queue --> DAO
+    ST --> PREF
+```
+
+**Why it is shaped this way**
+
+- **One state holder.** `AppState` is an `AndroidViewModel`. Screens read observable lists and call functions like `addBook`, `logPages` and `undoLastSession`. The lists update the UI when they change, which is the Observer pattern Compose already gives us.
+- **Writes go through one queue.** Room writes are sent through a single `Channel`, so two quick taps cannot race each other and the screen never waits on the disk.
+- **Rules live outside the UI.** Anything that can be wrong, like streak maths or "how many days left", is a plain function in `model/`. That is why it can be unit tested without an emulator.
+- **One NavHost.** All routes are in `Routes.kt`, so a screen never builds a route string by hand.
+- **Small settings stay small.** Flags like "onboarding finished" and "frozen days" are in SharedPreferences. Books, sessions and reminders are in Room (database version 1, sessions cascade when a book is deleted).
+
+### Tech stack
+
+| Part | Version |
+|---|---|
+| Kotlin | 1.9.0 |
+| Android Gradle Plugin | 8.6.1 |
+| Compose BOM / compiler | 2024.04.01 / 1.5.1 |
+| Navigation Compose | 2.7.7 |
+| Room + KSP | 2.6.1 + 1.9.0-1.0.13 |
+| Min / target / compile SDK | 24 / 34 / 34 |
+
+---
+
+## The streak logic
+
+Most reading apps are harsh about missed days. FivePages gives you a way back.
+
+```mermaid
+stateDiagram-v2
+    [*] --> Active: read today
+    Active --> AtRisk: day ends, nothing logged
+    AtRisk --> Active: read before midnight
+    AtRisk --> Missed: next day starts
+    Missed --> Saved: use the monthly freeze
+    Missed --> Reset: choose Fresh start
+    Saved --> Active: read today, streak continues
+    Reset --> Active: streak starts at 1
+```
+
+The rules, in plain words:
+
+| Rule | Where it lives |
+|---|---|
+| A streak is the number of days in a row with at least one session, ending today or yesterday. | `streakEndingAt` |
+| You get **1 freeze per month**. It refills on the first of the month. | `FREEZES_PER_MONTH`, `freezesLeft`, `monthKey` |
+| A frozen day **keeps the streak alive but is not counted** as a reading day. | `streakWithFreezes` |
+| "Missed yesterday" only shows if you read the day before, skipped yesterday, have not read today, and had a streak worth saving. | `missedYesterdayStreak` |
+| **Preview** on Progress shows the screen but never uses a freeze. | `MISSED_YESTERDAY/{preview}` route |
+
+---
+
+## Design system
+
+Taken from the Branding frame in Figma. Brand green is kept bright on purpose so buttons are easy to see.
+
+| Token | Value | Use |
+|---|---|---|
+| `FpGreen` | `#2E6F40` | Primary buttons, progress, streak |
+| Display font | Fraunces | Big titles |
+| Body font | DM Sans | Buttons, labels, body text |
+| UI font | Inter | Small numbers and captions |
+
+The theme is applied once in `FivePagesTheme`, so screens use theme colours instead of picking their own.
+
+---
+
+## Run it
+
+You need Android Studio and a JDK that works with Android Gradle Plugin 8.6.
+
+```bash
+git clone <this repository>
+cd FivePages
+./gradlew assembleDebug        # build
+./gradlew installDebug         # install on a connected phone or emulator
+```
+
+Or open the folder in Android Studio, wait for Gradle sync, choose a device and press Run.
+
+**First launch** shows onboarding. To see it again, clear the app's storage in Android settings.
+
+**Run unit tests**
+
+```bash
+./gradlew testDebugUnitTest
+```
+
+In Android Studio you can also right-click `app/src/test` and choose *Run Tests*. Reports are saved in `app/build/reports/tests/testDebugUnitTest/index.html`.
+
+> Android Studio may show red "errors" in the commit window that are not real. If Gradle builds, the code is fine.
+
+---
+
+## Testing
+
+### Automated: 33 unit tests, all passing
+
+<p align="center">
+  <img src="docs/assets/unit-tests-passed.png" alt="Android Studio showing 33 tests passed" width="70%">
+</p>
+
+32 tests cover the pure functions in `model/`, so they run in seconds with no emulator. The 33rd is the `ExampleUnitTest` that Android Studio creates with every new project.
+
+| File | Tests | What is checked |
+|---|---:|---|
+| `ProgressStatsTest` | 11 | Streak counting, gap handling, week starts on Monday, sessions this month, active books, segment rounding, percent range |
+| `StreakGraceTest` | 11 | Missed yesterday, freeze keeps streak, frozen day not counted, monthly refill, month key |
+| `SessionHistoryTest` | 8 | Duration text (dash, under a minute, minutes, hours), page plurals, date format, only this book, newest first |
+| `DailyGoalTest` | 2 | Pages split evenly over days left, last day is all pages left |
+| `ExampleUnitTest` | 1 | Template test from Android Studio |
+
+<details>
+<summary><b>See every test name</b></summary>
+
+**ProgressStatsTest**
+- `segments_roundUpSoAnyProgressShowsOneSegment`
+- `percentDone_roundsDownAndStaysInRange`
+- `dayIndex_epochIsDayZero`
+- `streak_countsConsecutiveDaysEndingToday`
+- `streak_staysAliveThroughYesterday`
+- `streak_isZeroAfterAMissedDay`
+- `streak_isZeroWithNoSessions`
+- `streak_stopsAtAGap`
+- `week_startsOnMondayAndSumsPagesPerDay`
+- `sessionsThisMonth_ignoresEarlierMonths`
+- `summary_countsOnlyUnfinishedBooksAsActive`
+
+**StreakGraceTest**
+- `missed_isZeroWhenYesterdayWasRead`
+- `missed_isZeroWhenTodayAlreadyHasASession`
+- `missed_returnsTheStreakThatCanBeSaved`
+- `missed_isZeroWhenThereWasNoStreakToSave`
+- `missed_isZeroOnceYesterdayIsFrozen`
+- `freeze_keepsTheStreakAliveWithoutCountingTheFrozenDay`
+- `freeze_streakContinuesWhenTodayIsRead`
+- `streak_isZeroAfterAMissedDayWithoutFreeze`
+- `freezesLeft_startsAtOneAndDropsToZeroAfterUse`
+- `freezesLeft_refillsInANewMonth`
+- `monthKey_changesOnTheFirstOfTheMonth`
+
+**SessionHistoryTest**
+- `duration_zeroShowsDash`
+- `duration_underAMinuteRoundsToOneMinute`
+- `duration_minutesOnly`
+- `duration_hoursAndMinutes`
+- `duration_wholeHours`
+- `pages_singularAndPlural`
+- `date_usesMonthDayYear`
+- `history_onlyThisBookNewestFirst`
+
+**DailyGoalTest**
+- `dailyGoal_splitsPagesEvenlyAcrossDays`
+- `dailyGoal_onTheLastDayIsAllThePagesLeft`
+
+</details>
+
+### Manual: test-case table
+
+The full table of screen-by-screen checks is in **[docs/TEST_CASES.md](docs/TEST_CASES.md)**. It covers navigation, validation, the dialogs, the streak freeze and data that must survive closing the app.
+
+---
+
+## Modularity: shared components
+
+Before this cleanup, the back header, the bottom bar, the dialogs and the green button were copied into many screens. They now live in `ui/components/` and every screen calls them.
+
+| Component | Replaces | Used by |
+|---|---|---|
+| `BackTopBar(title, onBack, trailing)` | a hand-built back arrow and title row | Add book, Book details, Edit title, Edit goal, Book options, Session history, Reminder window, Missed yesterday screens |
+| `TitleTopBar(title)` | a hand-built title row | My books, Progress, Settings |
+| `AppBottomBar(selected, onTabSelected)` | the bottom bar copied into three screens | My books, Progress, Settings |
+| `AppDialog(icon, title, message, actions)` | each popup's own card layout | Book added, Book deleted, Delete book, Title updated, Goal updated |
+| `PrimaryButton`, `OutlineButton`, `CircleIconButton` | repeated button styling | Add book, Book details, Edit title, Edit goal, Reminder window, streak screens and the dialogs |
+| `remainingDays(target, now)` | the days-left maths copied in several files | Add book, Book details, Edit goal, My books |
+
+Warning cleanup done so far: unused imports removed, deprecated `Icons.Filled.MenuBook` and `ShowChart` replaced with their `AutoMirrored` versions, and the shared helpers take `now` as a parameter so they are testable.
+
+---
+
+## User testing
+
+We asked two classmates to try the app without help. The script, the observation sheet and the results table are in **[docs/USER_TESTING.md](docs/USER_TESTING.md)**.
+
+| | Tester 1 | Tester 2 |
+|---|---|---|
+| Name | _to fill in_ | _to fill in_ |
+| Tasks finished without help | _/5_ | _/5_ |
+| Biggest confusion | | |
+| What we changed because of it | | |
+
+---
+
+## Beyond the Figma
+
+Things we added because they made the app feel more complete:
+
+- **Session History** with how long each session took, from timer start to finish.
+- **Streak freeze** with a monthly limit, and a **Fresh start** option.
+- **Preview** link so a grader can see the Missed yesterday screen without waiting a day.
+- **Undo last session** after logging pages.
+- **Duplicate title check** on Add book and Edit title.
+- A shared **components** package instead of copied code.
+
+---
+
+## Known limits
+
+Being honest about what is not done:
+
+- Reminders are saved and can be switched on and off, but the phone does not yet show a real notification. That needs the `POST_NOTIFICATIONS` permission flow and a scheduler.
+- Data is local only. Uninstalling the app deletes it.
+- Log pages and Reading session screens still carry some duplicated layout code that should move into `ui/components/`.
+- Manual tests and user testing results must be filled in by the team after they are run.
+
+---
+
+<p align="center">
+  Made by Franzie Frielle Mangalindan, Sire Ermond Manalo, Abigail Ann Sarmiento and Christian Allen Soriano.<br>
+  MO-IT114 Mobile Development Fundamentals, Mapúa Malayan Digital College.
+</p>
