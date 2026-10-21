@@ -1,9 +1,11 @@
 package com.example.fivepages.state
+
 import androidx.compose.runtime.mutableStateListOf
+import androidx.lifecycle.ViewModel
 import com.example.fivepages.model.Book
 import com.example.fivepages.model.ReminderWindow
 
-class AppState {
+class AppState : ViewModel() {
     val books = mutableStateListOf<Book>()
 
     //Reminder Windows (starts with the two examples from Figma)
