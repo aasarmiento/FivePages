@@ -28,7 +28,9 @@ import androidx.compose.runtime.remember
 import com.example.fivepages.ui.screens.addbook.ReadingSessionScreen
 import com.example.fivepages.ui.screens.addbook.SessionLoggedScreen
 import com.example.fivepages.ui.screens.bookoptions.BookOptionsScreen
+import com.example.fivepages.ui.screens.bookoptions.EditGoalScreen
 import com.example.fivepages.ui.screens.bookoptions.EditTitleScreen
+import com.example.fivepages.ui.screens.progress.ProgressScreen
 import com.example.fivepages.ui.screens.settings.ReminderWindowScreen
 
 // Safe na Back: pop lang kung may previous screen, para hindi ma-pop ang start screen
@@ -41,15 +43,31 @@ private fun NavController.goBack() {
 @Composable
 fun AppNavHost(appState: AppState) {
     val navController = rememberNavController()
+    val startDestination = remember {
+        if (appState.onboarded) Routes.LIBRARY else Routes.ONBOARDING_WELCOME
+    }
 
     // Onboarding done: go to Library and remove onboarding from the back stack
     val finishOnboarding: () -> Unit = {
+        appState.markOnboarded()
         navController.navigate(Routes.LIBRARY) {
             popUpTo(Routes.ONBOARDING_WELCOME) { inclusive = true }
         }
     }
 
-    NavHost(navController = navController, startDestination = Routes.ONBOARDING_WELCOME) {
+    val goToTab: (String) -> Unit = { tab ->
+        if (tab == "Library") {
+            navController.popBackStack(Routes.LIBRARY, inclusive = false)
+        } else {
+            val route = if (tab == "Progress") Routes.PROGRESS else Routes.SETTINGS
+            navController.navigate(route) {
+                popUpTo(Routes.LIBRARY) { inclusive = false }
+                launchSingleTop = true
+            }
+        }
+    }
+
+    NavHost(navController = navController, startDestination = startDestination) {
 
         // Onboarding
         composable(Routes.ONBOARDING_WELCOME) {
@@ -94,11 +112,8 @@ fun AppNavHost(appState: AppState) {
                 onAddBook = {
                     navController.navigate(Routes.ADD_BOOK) { launchSingleTop = true }
                 },
-                onTabSelected = { tab ->
-                    if (tab == "Settings") {
-                        navController.navigate(Routes.SETTINGS) { launchSingleTop = true }
-                    }
-                },
+                onTabSelected = goToTab,
+                streakFor = { appState.streakFor(it) },
                 onReadBook = { bookId: Int ->
                     navController.navigate(Routes.bookDetail(bookId)) { launchSingleTop = true }
                 }
@@ -115,6 +130,14 @@ fun AppNavHost(appState: AppState) {
             )
         }
 
+        //Progress
+        composable(Routes.PROGRESS) {
+            ProgressScreen(
+                summary = appState.progressSummary(),
+                onTabSelected = goToTab
+            )
+        }
+
         //Settings
         composable(Routes.SETTINGS) {
             SettingsScreen(
@@ -126,9 +149,7 @@ fun AppNavHost(appState: AppState) {
                 onEditReminder = { id ->
                     navController.navigate(Routes.reminderWindow(id)) { launchSingleTop = true }
                 },
-                onTabSelected = { tab ->
-                    if (tab == "Library") navController.goBack()
-                }
+                onTabSelected = goToTab
             )
         }
 
@@ -167,7 +188,8 @@ fun AppNavHost(appState: AppState) {
                 },
                 onOptions = {
                     navController.navigate(Routes.bookOptions(bookId)) { launchSingleTop = true }
-                }
+                },
+                dayStreak = appState.streakFor(bookId)
             )
         }
 
@@ -214,9 +236,22 @@ fun AppNavHost(appState: AppState) {
             arguments = listOf(navArgument(Routes.PAGES_ARG) { type = NavType.IntType })
         ) { entry ->
             val pages = entry.arguments?.getInt(Routes.PAGES_ARG) ?: 0
+            var undone by rememberSaveable { mutableStateOf(false) }
             SessionLoggedScreen(
                 pagesAdded = pages,
-                onReturnToLibrary = { navController.popBackStack(Routes.LIBRARY, inclusive = false) }
+                onReturnToLibrary = { navController.popBackStack(Routes.LIBRARY, inclusive = false) },
+                streakDays = appState.progressSummary().dayStreak.takeIf { it > 0 },
+                onUndo = {
+                    if (!undone) {
+                        undone = true
+                        appState.undoLastSession()?.let { bookId ->
+                            navController.navigate(Routes.logPages(bookId)) {
+                                popUpTo(Routes.SESSION_LOGGED) { inclusive = true }
+                                launchSingleTop = true
+                            }
+                        }
+                    }
+                }
             )
         }
 
@@ -232,6 +267,9 @@ fun AppNavHost(appState: AppState) {
                 onBack = { navController.goBack() },
                 onEditTitle = {
                     navController.navigate(Routes.editTitle(bookId)) { launchSingleTop = true }
+                },
+                onEditGoal = {
+                    navController.navigate(Routes.editGoal(bookId)) { launchSingleTop = true }
                 },
                 onDeleteConfirmed = { appState.deleteBook(bookId) },
                 onDeletedDone = { navController.popBackStack(Routes.LIBRARY, inclusive = false) }
@@ -249,6 +287,21 @@ fun AppNavHost(appState: AppState) {
                 onBack = { navController.goBack() },
                 onSave = { newTitle -> appState.renameBook(bookId, newTitle) },
                 isTitleTaken = { appState.titleExists(it, exceptId = bookId) }
+            )
+        }
+
+        composable(
+            Routes.EDIT_GOAL,
+            arguments = listOf(navArgument("bookId") { type = NavType.IntType })
+        ) { entry ->
+            val bookId = entry.arguments?.getInt("bookId") ?: return@composable
+            val book = appState.books.firstOrNull { it.id == bookId } ?: return@composable
+            EditGoalScreen(
+                totalPages = book.totalPages,
+                pagesRead = book.pagesRead,
+                targetDateMillis = book.targetDateMillis,
+                onBack = { navController.goBack() },
+                onSave = { newTotal, newDate -> appState.updateGoal(bookId, newTotal, newDate) }
             )
         }
     }

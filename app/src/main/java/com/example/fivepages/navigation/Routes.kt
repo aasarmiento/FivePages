@@ -3,6 +3,7 @@ package com.example.fivepages.navigation
 object Routes {
     const val LIBRARY = "library"
     const val ADD_BOOK = "add_book"
+    const val PROGRESS = "progress"
 
     // Book Progress Routes
     const val BOOK_DETAIL = "book_detail/{bookId}"
@@ -13,8 +14,10 @@ object Routes {
     fun readingSession(bookId: Int) = "reading_session/$bookId"
     const val BOOK_OPTIONS = "book_options/{bookId}"
     const val EDIT_TITLE = "edit_title/{bookId}"
+    const val EDIT_GOAL = "edit_goal/{bookId}"
     fun bookOptions(bookId: Int) = "book_options/$bookId"
     fun editTitle(bookId: Int) = "edit_title/$bookId"
+    fun editGoal(bookId: Int) = "edit_goal/$bookId"
 
     //Onboarding Screens
     const val ONBOARDING_WELCOME = "onboarding_welcome"

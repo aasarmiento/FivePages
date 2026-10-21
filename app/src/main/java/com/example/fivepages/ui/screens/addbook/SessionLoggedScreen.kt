@@ -1,21 +1,21 @@
 package com.example.fivepages.ui.screens.addbook
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MenuBook
+import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import com.example.fivepages.R
 import com.example.fivepages.ui.theme.FivePagesTheme
 
@@ -52,12 +52,26 @@ fun SessionLoggedScreen(
             Text("Nice one!", style = MaterialTheme.typography.headlineSmall, color = colors.onBackground)
             Spacer(Modifier.height(6.dp))
             Text("Session logged", style = MaterialTheme.typography.labelLarge, color = colors.onBackground)
-            Text(
-                "$pagesText$streakText",
-                style = MaterialTheme.typography.bodySmall,
-                color = colors.onSurfaceVariant,
-                textAlign = TextAlign.Center
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    "$pagesText$streakText",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = colors.onSurfaceVariant,
+                    textAlign = TextAlign.Center
+                )
+                if (streakDays != null) {
+                    Spacer(Modifier.width(4.dp))
+                    Icon(
+                        Icons.Filled.LocalFireDepartment,
+                        contentDescription = null,
+                        tint = colors.onSurfaceVariant,
+                        modifier = Modifier.size(14.dp)
+                    )
+                }
+            }
         }
 
         Button(
@@ -73,11 +87,14 @@ fun SessionLoggedScreen(
         }
 
         if (onUndo != null) {
+            Spacer(Modifier.height(8.dp))
             TextButton(onClick = onUndo) {
                 Text(
                     "Logged the wrong number? Undo",
                     style = MaterialTheme.typography.bodySmall,
-                    color = colors.onSurfaceVariant
+                    fontStyle = FontStyle.Italic,
+                    textDecoration = TextDecoration.Underline,
+                    color = colors.error
                 )
             }
         }

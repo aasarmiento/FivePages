@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -17,6 +18,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.fivepages.ui.theme.FivePagesTheme
@@ -26,8 +29,10 @@ fun BookOptionsScreen(
     bookTitle: String,
     onBack: () -> Unit,
     onEditTitle: () -> Unit,
+    onEditGoal: () -> Unit,
     onDeleteConfirmed: () -> Unit,
     onDeletedDone: () -> Unit,
+    onSessionHistory: (() -> Unit)? = null,
 ) {
     val colors = MaterialTheme.colorScheme
 
@@ -74,33 +79,61 @@ fun BookOptionsScreen(
         Column(
             Modifier
                 .padding(padding)
-                .padding(horizontal = 20.dp, vertical = 8.dp)
+                .padding(horizontal = 20.dp, vertical = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            OptionRow(
-                label = "Edit title",
-                onClick = onEditTitle,
-                trailing = {
-                    Icon(
-                        Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                        contentDescription = null,
-                        tint = colors.onSurfaceVariant
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = colors.surface,
+                border = BorderStroke(1.dp, colors.outline),
+            ) {
+                Column {
+                    OptionRow(
+                        label = "Edit title",
+                        onClick = onEditTitle,
+                        trailing = { Chevron() }
+                    )
+                    HorizontalDivider(color = colors.outline)
+                    OptionRow(
+                        label = "Edit goal (pages/date)",
+                        onClick = onEditGoal,
+                        trailing = { Chevron() }
+                    )
+                    HorizontalDivider(color = colors.outline)
+                    OptionRow(
+                        label = "Delete book",
+                        labelColor = colors.error,
+                        onClick = { showDeleteConfirm = true },
+                        leading = {
+                            Icon(
+                                Icons.Filled.Delete,
+                                contentDescription = null,
+                                tint = colors.error,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
                     )
                 }
-            )
-            HorizontalDivider(color = colors.outline)
-            OptionRow(
-                label = "Delete book",
-                labelColor = colors.error,
-                onClick = { showDeleteConfirm = true },
-                trailing = {
-                    Icon(
-                        Icons.Filled.Delete,
-                        contentDescription = null,
-                        tint = colors.error
+            }
+
+            if (onSessionHistory != null) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable(onClick = onSessionHistory)
+                        .padding(vertical = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        "Session History Log",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = colors.primary
                     )
+                    Chevron()
                 }
-            )
-            HorizontalDivider(color = colors.outline)
+            }
         }
     }
 
@@ -122,22 +155,38 @@ fun BookOptionsScreen(
 }
 
 @Composable
+private fun Chevron() {
+    Icon(
+        Icons.AutoMirrored.Filled.KeyboardArrowRight,
+        contentDescription = null,
+        tint = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+}
+
+@Composable
 private fun OptionRow(
     label: String,
     onClick: () -> Unit,
-    trailing: @Composable () -> Unit,
-    labelColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.onBackground,
+    labelColor: Color = MaterialTheme.colorScheme.onBackground,
+    leading: (@Composable () -> Unit)? = null,
+    trailing: (@Composable () -> Unit)? = null,
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .padding(vertical = 16.dp),
+            .padding(horizontal = 16.dp, vertical = 14.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(label, style = MaterialTheme.typography.bodyLarge, color = labelColor)
-        trailing()
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            if (leading != null) {
+                leading()
+                Spacer(Modifier.width(10.dp))
+            }
+            Text(label, style = MaterialTheme.typography.bodyLarge, color = labelColor)
+        }
+        if (trailing != null) trailing()
     }
 }
 
@@ -149,8 +198,10 @@ private fun BookOptionsScreenPreview() {
             bookTitle = "Atomic Habits",
             onBack = {},
             onEditTitle = {},
+            onEditGoal = {},
             onDeleteConfirmed = {},
-            onDeletedDone = {}
+            onDeletedDone = {},
+            onSessionHistory = {}
         )
     }
 }

@@ -96,7 +96,7 @@ fun AddBookScreen(onBack: () -> Unit, onSave: (title: String, totalPages: Int, t
         } ?: 0
     }
     val perDay = if (pages > 0 && daysLeft > 0) dailyGoal(pages, daysLeft) else 0
-    val titleTaken = title.isNotBlank() && isTitleTaken(title)
+    val titleTaken = !showAdded && title.isNotBlank() && isTitleTaken(title)
     val isFormValid = title.isNotBlank() && !titleTaken && pages > 0 && targetDateMillis != null
 
 
@@ -193,7 +193,7 @@ fun AddBookScreen(onBack: () -> Unit, onSave: (title: String, totalPages: Int, t
                 )
             }
 
-            // Total Pages Input
+
             LabeledField(label = "Total pages") {
                 FpTextField(
                     value = pagesText,
@@ -202,7 +202,7 @@ fun AddBookScreen(onBack: () -> Unit, onSave: (title: String, totalPages: Int, t
                     keyboard = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
             }
-            // Target Finish Date Input
+
             LabeledField(label = "Target finish date") {
                 Box {
                     FpTextField(
@@ -225,7 +225,7 @@ fun AddBookScreen(onBack: () -> Unit, onSave: (title: String, totalPages: Int, t
                     )
                 }
             }
-            // Dynamic Goal Card Calculation
+
             if (perDay > 0) {
                 GoalCard(perDay = perDay, pages = pages, days = daysLeft)
             }

@@ -15,13 +15,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
@@ -30,14 +33,12 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -50,13 +51,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.fivepages.model.Book
 import com.example.fivepages.model.dailyGoal
+import com.example.fivepages.model.percentDone
+import com.example.fivepages.model.progressSegments
 import com.example.fivepages.ui.theme.FivePagesTheme
 
 
@@ -80,6 +88,7 @@ fun LibraryEmptyScreen(
     onAddBook: () -> Unit,
     onReadBook: (Int) -> Unit = {},
     onTabSelected: (String) -> Unit = {},
+    streakFor: (Int) -> Int = { 0 },
 ) {
     val colors = MaterialTheme.colorScheme
     var selected by remember { mutableStateOf(Tab.Library) }
@@ -159,42 +168,7 @@ fun LibraryEmptyScreen(
                     .fillMaxSize()
             ) {
                 Column(Modifier.padding(start = 20.dp, end = 20.dp, top = 16.dp)) {
-                    OutlinedTextField(
-                        value = query,
-                        onValueChange = { query = it },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                        textStyle = MaterialTheme.typography.bodyLarge,
-                        placeholder = {
-                            Text(
-                                "Search Books",
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = colors.onSurfaceVariant
-                            )
-                        },
-                        leadingIcon = {
-                            Icon(Icons.Filled.Search, contentDescription = null, tint = colors.onSurfaceVariant)
-                        },
-                        trailingIcon = {
-                            if (query.isNotEmpty()) {
-                                IconButton(onClick = { query = "" }) {
-                                    Icon(
-                                        Icons.Filled.Close,
-                                        contentDescription = "Clear search",
-                                        tint = colors.onSurfaceVariant
-                                    )
-                                }
-                            }
-                        },
-                        shape = RoundedCornerShape(24.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = colors.surface,
-                            unfocusedContainerColor = colors.surface,
-                            focusedBorderColor = colors.primary,
-                            unfocusedBorderColor = colors.outline,
-                            cursorColor = colors.primary,
-                        ),
-                    )
+                    SearchField(query = query, onQueryChange = { query = it })
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -229,13 +203,16 @@ fun LibraryEmptyScreen(
                     )
                 } else {
                     LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(20.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                        contentPadding = PaddingValues(start = 20.dp, top = 12.dp, end = 20.dp, bottom = 96.dp),
                         verticalArrangement = Arrangement.spacedBy(14.dp)
                     ) {
                         items(visibleBooks, key = { it.id }) { book ->
                             BookCard(
                                 book = book,
+                                streak = streakFor(book.id),
                                 onClick = { onReadBook(book.id) }
                             )
                         }
@@ -247,63 +224,206 @@ fun LibraryEmptyScreen(
 }
 
 @Composable
-private fun BookCard(book: Book,
-                     onClick: () -> Unit) {
+private fun SearchField(query: String, onQueryChange: (String) -> Unit) {
     val colors = MaterialTheme.colorScheme
-    val progress = if (book.totalPages > 0) book.pagesRead.toFloat() / book.totalPages else 0f
+    val shape = RoundedCornerShape(20.dp)
+
+    BasicTextField(
+        value = query,
+        onValueChange = onQueryChange,
+        singleLine = true,
+        textStyle = MaterialTheme.typography.bodyMedium.copy(color = colors.onSurface),
+        cursorBrush = SolidColor(colors.primary),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(40.dp),
+        decorationBox = { innerTextField ->
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(colors.surface, shape)
+                    .border(1.dp, colors.outline, shape)
+                    .padding(horizontal = 14.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    Icons.Filled.Search,
+                    contentDescription = null,
+                    tint = colors.onSurfaceVariant,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(Modifier.width(8.dp))
+                Box(Modifier.weight(1f)) {
+                    if (query.isEmpty()) {
+                        Text(
+                            "Search Books",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = colors.onSurfaceVariant.copy(alpha = 0.7f)
+                        )
+                    }
+                    innerTextField()
+                }
+                if (query.isNotEmpty()) {
+                    IconButton(onClick = { onQueryChange("") }, modifier = Modifier.size(24.dp)) {
+                        Icon(
+                            Icons.Filled.Close,
+                            contentDescription = "Clear search",
+                            tint = colors.onSurfaceVariant,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                }
+            }
+        }
+    )
+}
+
+@Composable
+private fun BookCard(
+    book: Book,
+    streak: Int,
+    onClick: () -> Unit,
+) {
+    val colors = MaterialTheme.colorScheme
+    val shape = RoundedCornerShape(16.dp)
 
     val nowMs = System.currentTimeMillis()
     val diffMs = book.targetDateMillis - nowMs
     val daysLeft = ((diffMs / (1000 * 60 * 60 * 24)).toInt() + 1).coerceAtLeast(1)
     val pagesRemaining = (book.totalPages - book.pagesRead).coerceAtLeast(0)
     val perDay = dailyGoal(pagesRemaining, daysLeft)
+    val percent = percentDone(book.pagesRead, book.totalPages)
 
-    Column(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
+            .clip(shape)
             .clickable { onClick() }
-            .background(colors.surface, RoundedCornerShape(16.dp))
-            .border(1.dp, colors.outline, RoundedCornerShape(16.dp))
-            .padding(16.dp)
+            .background(colors.surface, shape)
+            .border(1.dp, colors.outline, shape)
+            .padding(12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        CoverTile(book.title)
+
+        Spacer(Modifier.width(12.dp))
+
+        Column(Modifier.weight(1f)) {
+            Text(
+                text = book.title,
+                style = MaterialTheme.typography.titleLarge.copy(fontSize = 18.sp),
+                fontWeight = FontWeight.Bold,
+                color = colors.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            Spacer(Modifier.height(8.dp))
+
+            SegmentedBar(
+                filled = progressSegments(book.pagesRead, book.totalPages),
+                percent = percent
+            )
+
+            Spacer(Modifier.height(10.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(
+                    modifier = Modifier.weight(1f),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    val streakText = if (streak > 0) " · $streak" else ""
+                    Text(
+                        text = "$percent% done · $perDay pages/day$streakText",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = colors.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, fill = false)
+                    )
+                    if (streak > 0) {
+                        Spacer(Modifier.width(2.dp))
+                        Icon(
+                            Icons.Filled.LocalFireDepartment,
+                            contentDescription = "$streak day streak",
+                            tint = colors.onSurfaceVariant,
+                            modifier = Modifier.size(14.dp)
+                        )
+                    }
+                }
+                Spacer(Modifier.width(8.dp))
+                ReadButton(onClick = onClick)
+            }
+        }
+    }
+}
+
+@Composable
+private fun CoverTile(title: String) {
+    val colors = MaterialTheme.colorScheme
+    val initials = title.trim()
+        .split(Regex("\\s+"))
+        .take(2)
+        .mapNotNull { it.firstOrNull()?.uppercaseChar() }
+        .joinToString("")
+
+    Box(
+        modifier = Modifier
+            .size(width = 56.dp, height = 76.dp)
+            .background(colors.primaryContainer, RoundedCornerShape(6.dp))
+            .border(1.dp, colors.outline, RoundedCornerShape(6.dp)),
+        contentAlignment = Alignment.Center
     ) {
         Text(
-            text = book.title,
-            style = MaterialTheme.typography.titleMedium,
+            text = initials,
+            style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
-            color = colors.onSurface
+            color = colors.primary
         )
+    }
+}
 
-        Spacer(Modifier.height(8.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "${book.pagesRead} of ${book.totalPages} pages",
-                style = MaterialTheme.typography.bodyMedium,
-                color = colors.onSurfaceVariant
-            )
-            Text(
-                text = "$perDay pages/day",
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.SemiBold,
-                color = colors.primary
+@Composable
+private fun SegmentedBar(filled: Int, percent: Int, segments: Int = 10) {
+    val colors = MaterialTheme.colorScheme
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clearAndSetSemantics { contentDescription = "$percent percent read" },
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        repeat(segments) { index ->
+            Box(
+                Modifier
+                    .weight(1f)
+                    .height(6.dp)
+                    .background(
+                        color = if (index < filled) colors.primary else colors.surfaceVariant,
+                        shape = RoundedCornerShape(3.dp)
+                    )
             )
         }
+    }
+}
 
-        Spacer(Modifier.height(10.dp))
-
-        LinearProgressIndicator(
-            progress = { progress },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(8.dp)
-                .clip(RoundedCornerShape(4.dp)),
-            color = colors.primary,
-            trackColor = colors.surfaceVariant,
+@Composable
+private fun ReadButton(onClick: () -> Unit) {
+    val colors = MaterialTheme.colorScheme
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(6.dp),
+        color = colors.primary,
+        contentColor = colors.onPrimary
+    ) {
+        Text(
+            text = "Read",
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp)
         )
     }
 }
@@ -343,4 +463,24 @@ private fun EmptyLibraryState(modifier: Modifier = Modifier) {
 @Composable
 private fun LibraryEmptyPreview() {
     FivePagesTheme { LibraryEmptyScreen(onAddBook = {}) }
+}
+
+@Preview(showBackground = true, widthDp = 375, heightDp = 812)
+@Composable
+private fun LibraryWithBookPreview() {
+    FivePagesTheme {
+        LibraryEmptyScreen(
+            books = listOf(
+                Book(
+                    id = 1,
+                    title = "Atomic Habits",
+                    totalPages = 250,
+                    targetDateMillis = System.currentTimeMillis() + (57L * 24 * 60 * 60 * 1000),
+                    pagesRead = 12
+                )
+            ),
+            onAddBook = {},
+            streakFor = { 1 }
+        )
+    }
 }
