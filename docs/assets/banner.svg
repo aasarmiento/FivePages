@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 300" width="1000" height="300" role="img" aria-labelledby="t d">
+  <title id="t">FivePages</title>
+  <desc id="d">Animated banner: an open book is drawn, then five page markers fill one by one.</desc>
+  <style>
+    .serif { font-family: Georgia, 'Times New Roman', serif; }
+    .sans { font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+    .draw { stroke: #2E6F40; stroke-width: 9; stroke-linecap: round; stroke-linejoin: round; fill: none;
+            stroke-dasharray: 420; stroke-dashoffset: 420; animation: draw 9s ease-in-out infinite; }
+    .draw.d2 { animation-delay: .35s; }
+    .head { fill: none; stroke: #2E6F40; stroke-width: 9; stroke-dasharray: 120; stroke-dashoffset: 120; animation: draw 9s ease-in-out infinite; animation-delay: .7s; }
+    @keyframes draw { 0% { stroke-dashoffset: 420; } 14%, 88% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 420; } }
+    .title { animation: rise 9s ease-out infinite; transform-box: fill-box; }
+    @keyframes rise { 0% { opacity: 0; transform: translateY(14px); } 12%, 90% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(0); } }
+    .tag { animation: fade 9s ease-out infinite; }
+    @keyframes fade { 0%, 8% { opacity: 0; } 20%, 90% { opacity: 1; } 100% { opacity: 0; } }
+    .pg { fill: #E2E2DD; }
+    .pg.on { fill: #2E6F40; opacity: 0; }
+    .p1 { animation: on1 9s infinite; } .p2 { animation: on2 9s infinite; } .p3 { animation: on3 9s infinite; }
+    .p4 { animation: on4 9s infinite; } .p5 { animation: on5 9s infinite; }
+    @keyframes on1 { 0%, 26% { opacity: 0; } 30%, 88% { opacity: 1; } 100% { opacity: 0; } }
+    @keyframes on2 { 0%, 36% { opacity: 0; } 40%, 88% { opacity: 1; } 100% { opacity: 0; } }
+    @keyframes on3 { 0%, 46% { opacity: 0; } 50%, 88% { opacity: 1; } 100% { opacity: 0; } }
+    @keyframes on4 { 0%, 56% { opacity: 0; } 60%, 88% { opacity: 1; } 100% { opacity: 0; } }
+    @keyframes on5 { 0%, 66% { opacity: 0; } 70%, 88% { opacity: 1; } 100% { opacity: 0; } }
+    .done { animation: done 9s infinite; }
+    @keyframes done { 0%, 70% { opacity: 0; } 76%, 88% { opacity: 1; } 100% { opacity: 0; } }
+  </style>
+  <rect x="2" y="2" width="996" height="296" rx="22" fill="#FAFAF8" stroke="#E2E2DD" stroke-width="2"/>
+
+  <g transform="translate(70 52)">
+    <path class="draw" d="M10 62 L10 168 L78 168 Q92 168 102 176 L118 190"/>
+    <path class="draw d2" d="M190 62 L190 168 L122 168 Q108 168 98 176 L82 190"/>
+    <path class="draw" d="M10 62 Q70 50 100 96 Q130 50 190 62"/>
+    <circle class="head" cx="100" cy="20" r="14"/>
+  </g>
+
+  <g class="title">
+    <text class="serif" x="320" y="128" font-size="74" fill="#1F2937" font-weight="600">FivePages</text>
+  </g>
+  <text class="sans tag" x="324" y="168" font-size="21" fill="#6B7280">A little reading, every day. No marathon sessions required.</text>
+
+  <g transform="translate(324 196)">
+    <rect class="pg" x="0"   y="0" width="64" height="16" rx="8"/>
+    <rect class="pg" x="76"  y="0" width="64" height="16" rx="8"/>
+    <rect class="pg" x="152" y="0" width="64" height="16" rx="8"/>
+    <rect class="pg" x="228" y="0" width="64" height="16" rx="8"/>
+    <rect class="pg" x="304" y="0" width="64" height="16" rx="8"/>
+    <rect class="pg on p1" x="0"   y="0" width="64" height="16" rx="8"/>
+    <rect class="pg on p2" x="76"  y="0" width="64" height="16" rx="8"/>
+    <rect class="pg on p3" x="152" y="0" width="64" height="16" rx="8"/>
+    <rect class="pg on p4" x="228" y="0" width="64" height="16" rx="8"/>
+    <rect class="pg on p5" x="304" y="0" width="64" height="16" rx="8"/>
+    <text class="sans done" x="392" y="14" font-size="17" font-weight="700" fill="#2E6F40">5 pages done. Nice one!</text>
+  </g>
+
+  <text class="sans" x="324" y="262" font-size="14" fill="#6B7280">MO-IT114 Mobile Development Fundamentals · Milestone 2 · Jetpack Compose + Room</text>
+</svg>
