@@ -441,14 +441,14 @@ Before this cleanup, the back header, the bottom bar, the dialogs and the green 
 
 | Component | Replaces | Used by |
 |---|---|---|
-| `BackTopBar(title, onBack, trailing)` | a hand-built back arrow and title row | Add book, Book details, Edit title, Edit goal, Book options, Session history, Reminder window, Missed yesterday screens |
-| `TitleTopBar(title)` | a hand-built title row | My books, Progress, Settings |
+| `BackTopBar(title, onBack, trailing)` | a hand-built back arrow and title row | Add book, Book details, Log pages, Edit title, Edit goal, Book options, Session history, Reminder window, Missed yesterday screens |
+| `TitleTopBar(title, style)` | a hand-built title row | My books, Progress, Settings, Reading session |
 | `AppBottomBar(selected, onTabSelected)` | the bottom bar copied into three screens | My books, Progress, Settings |
-| `AppDialog(icon, title, message, actions)` | each popup's own card layout | Book added, Book deleted, Delete book, Title updated, Goal updated |
-| `PrimaryButton`, `OutlineButton`, `CircleIconButton` | repeated button styling | Add book, Book details, Edit title, Edit goal, Reminder window, streak screens and the dialogs |
+| `AppDialog(icon, title, message, actions)` | each popup's own card layout | Book added, Book deleted, Delete book, Title updated, Goal updated, Discard session, Start session |
+| `PrimaryButton`, `OutlineButton`, `CircleIconButton` | repeated button styling | Add book, Book details, Log pages, Reading session, Session logged, Edit title, Edit goal, Reminder window, streak screens and the dialogs |
 | `remainingDays(target, now)` | the days-left maths copied in several files | Add book, Book details, Edit goal, My books |
 
-Warning cleanup done so far: unused imports removed, deprecated `Icons.Filled.MenuBook` and `ShowChart` replaced with their `AutoMirrored` versions, and the shared helpers take `now` as a parameter so they are testable.
+Warning cleanup done so far: unused imports removed, deprecated `Icons.Filled.MenuBook` and `ShowChart` replaced with their `AutoMirrored` versions, `mutableStateOf(0)` replaced with `mutableIntStateOf(0)` in Log pages, and the shared helpers take `now` as a parameter so they are testable.
 
 ---
 
@@ -485,7 +485,7 @@ Being honest about what is not done:
 
 - Reminders are saved and can be switched on and off, but the phone does not yet show a real notification. That needs the `POST_NOTIFICATIONS` permission flow and a scheduler.
 - Data is local only. Uninstalling the app deletes it, and the database is an early extra that may be reworked in the next part of the course.
-- Log pages and Reading session screens still carry some duplicated layout code that should move into `ui/components/`.
+- The onboarding screens and the reminder dialogs have not been moved onto the shared components yet.
 - Manual tests and user testing results must be filled in by the team after they are run.
 
 ---
