@@ -25,8 +25,8 @@ Everything stays on the phone. No account, no internet, no ads.
 
 | Member | GitHub branch work (fill in) |
 |---|---|
-| Franzie Frielle Mangalindan | |
-| Sire Ermond Manalo | |
+| Franzie Frielle Mangalindan | | Onboarding Screens, Settings, Reminders |
+| Sire Ermond Manalo | | Add Book, Book Details, Log Pages, Book, Color, Theme, Type, Library-Empty, nav-host, routes |
 | Abigail Ann Sarmiento | Book options, session history, streak grace screens, theme, shared components, tests, docs |
 | Christian Allen Soriano | |
 
