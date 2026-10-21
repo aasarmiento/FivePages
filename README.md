@@ -108,6 +108,28 @@ Every row is a screen or behaviour from the Figma file, and each one works in th
 | Reminder window | Add, edit and delete a reminder time. |
 | Preview link | On Progress, opens the Missed yesterday screen without changing any data. |
 
+### How the daily goal is worked out
+
+The daily goal is the pages left divided by the days left, **rounded up to the next whole page**. One example is used everywhere in this project, including the Milestone 1 document:
+
+> 250 pages ÷ 57 days = 4.39, which rounds up to **5 pages a day**. At 5 pages a day that is about **50 reading sessions** (250 ÷ 5).
+
+The same rule runs on Add a book, My books, Book details and Edit goal, through one function, `dailyGoal`, so the number never differs between screens. On the last day the goal is all the pages left.
+
+### Two ways to log a session
+
+Use case: **log my reading for today**.
+
+| | Main flow: with the timer | Alternative flow: log pages manually |
+|---|---|---|
+| Start | Book details, **Start session** | Book details, **Log pages manually** |
+| Steps | Timer runs, tap finish, enter pages read | Enter the pages read, no timer |
+| Result | Session saved with its pages and how long it took | Session saved with its pages and no time |
+| Then | **Nice one!** screen with undo | **Nice one!** screen with undo |
+| History | Shows the date, pages and time | Shows the date, pages and a dash for time |
+
+Both flows add to the streak, the week chart and the progress percentage in the same way.
+
 ---
 
 ## Project layout
