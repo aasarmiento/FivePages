@@ -478,15 +478,12 @@ Things we added because they made the app feel more complete:
 - A shared **components** package instead of copied code.
 
 ---
-
 ## Known limits
 
 Being honest about what is not done:
 
 - Reminders are saved and can be switched on and off, but the phone does not yet show a real notification. That needs the `POST_NOTIFICATIONS` permission flow and a scheduler.
 - Data is local only. Uninstalling the app deletes it, and the database is an early extra that may be reworked in the next part of the course.
-- The onboarding screens and the reminder dialogs have not been moved onto the shared components yet.
-- Manual tests and user testing results must be filled in by the team after they are run.
 
 ---
 
