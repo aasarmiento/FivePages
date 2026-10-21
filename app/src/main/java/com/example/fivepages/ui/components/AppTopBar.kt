@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
@@ -53,12 +54,16 @@ fun BackTopBar(
 }
 
 @Composable
-fun TitleTopBar(title: String, modifier: Modifier = Modifier) {
+fun TitleTopBar(
+    title: String,
+    modifier: Modifier = Modifier,
+    style: TextStyle = MaterialTheme.typography.headlineMedium,
+) {
     val colors = MaterialTheme.colorScheme
     Column(modifier.background(colors.background)) {
         Text(
             text = title,
-            style = MaterialTheme.typography.headlineMedium,
+            style = style,
             color = colors.onBackground,
             modifier = Modifier
                 .statusBarsPadding()

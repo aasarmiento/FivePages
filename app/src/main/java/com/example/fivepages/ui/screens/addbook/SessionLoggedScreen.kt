@@ -1,9 +1,7 @@
 package com.example.fivepages.ui.screens.addbook
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material3.*
@@ -17,6 +15,9 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.fivepages.R
+import com.example.fivepages.ui.components.FullScreenPage
+import com.example.fivepages.ui.components.PageBody
+import com.example.fivepages.ui.components.PrimaryButton
 import com.example.fivepages.ui.theme.FivePagesTheme
 
 @Composable
@@ -30,19 +31,8 @@ fun SessionLoggedScreen(
     val pagesText = if (pagesAdded == 1) "1 page added" else "$pagesAdded pages added"
     val streakText = streakDays?.let { " · $it-day streak" } ?: ""
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(colors.background)
-            .systemBarsPadding()
-            .padding(horizontal = 24.dp, vertical = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+    FullScreenPage {
+        PageBody {
             Image(
                 painter = painterResource(R.drawable.fivepages_owl1),
                 contentDescription = null,
@@ -74,17 +64,7 @@ fun SessionLoggedScreen(
             }
         }
 
-        Button(
-            onClick = onReturnToLibrary,
-            modifier = Modifier.fillMaxWidth().height(52.dp),
-            shape = RoundedCornerShape(10.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = colors.primary,
-                contentColor = colors.onPrimary
-            ),
-        ) {
-            Text("Return to Library", style = MaterialTheme.typography.titleSmall)
-        }
+        PrimaryButton("Return to Library", onReturnToLibrary)
 
         if (onUndo != null) {
             Spacer(Modifier.height(8.dp))
