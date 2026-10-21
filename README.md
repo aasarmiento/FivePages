@@ -208,7 +208,7 @@ flowchart TB
     end
     subgraph DATA["data: Room"]
         DAO[AppDao]
-        DB[(SQLite)]
+        DB[(SQLite file: fivepages.db)]
         DAO --> DB
     end
     PREF[(SharedPreferences)]
@@ -227,6 +227,39 @@ flowchart TB
 - **Rules live outside the UI.** Anything that can be wrong, like streak maths or "how many days left", is a plain function in `model/`. That is why it can be unit tested without an emulator.
 - **One NavHost.** All routes are in `Routes.kt`, so a screen never builds a route string by hand.
 - **Small settings stay small.** Flags like "onboarding finished" and "frozen days" are in SharedPreferences. Books, sessions and reminders are in Room (database version 1, sessions cascade when a book is deleted).
+
+### Data layer
+
+> Local storage with Room was built **ahead of schedule**. Milestone 2 is about the UI, and the database work is a later part of the course, so this is an early extra. Only the `data/` folder and `AppState` touch it. The screens and the `model/` functions never do, so it can change later without rewriting the UI.
+
+Room is a helper on top of SQLite, the database that is already built into every Android phone. The data is stored in one file on the device, `fivepages.db`.
+
+| Piece | Job | File |
+|---|---|---|
+| Database | The file on the phone that keeps the data after the app closes. | `FivePagesDatabase.kt` |
+| Entities | The shape of each table. | `Entities.kt` |
+| DAO | The list of actions the app can run: read, save, delete. It holds no data itself. | `AppDao.kt` |
+| `AppState` | Calls the DAO and keeps the lists the screens show. | `AppState.kt` |
+
+**Tables**
+
+| Table | Columns | Notes |
+|---|---|---|
+| `books` | `id`, `title`, `totalPages`, `targetDateMillis`, `pagesRead` | One row per book |
+| `sessions` | `id`, `bookId`, `pages`, `loggedAtMillis`, `durationSeconds` | Linked to `books`. Deleting a book deletes its sessions. |
+| `reminders` | `id`, `label`, `hour`, `minute`, `enabled` | One row per reminder time |
+
+**What the DAO can do**
+
+| Action | Books | Sessions | Reminders |
+|---|---|---|---|
+| Read all | `getBooks` | `getSessions` | `getReminders` |
+| Save or update | `upsertBook` | `upsertSession` | `upsertReminder` |
+| Delete one | `deleteBookById` | `deleteSessionById` | `deleteReminderById` |
+
+**What happens when you save a book:** the Add Book screen calls `AppState.addBook`, which puts the job in the write queue, and the queue calls `AppDao.upsertBook`. Room then writes a row to the `books` table.
+
+**Data stays on your own device.** The database file is not part of the code, so it is never pushed to GitHub. A classmate who pulls the project gets an empty app and sees their own books only. To start fresh, clear the app's storage or uninstall it.
 
 ### Tech stack
 
@@ -416,6 +449,7 @@ Things we added because they made the app feel more complete:
 
 - **Session History** with how long each session took, from timer start to finish.
 - **Streak freeze** with a monthly limit, and a **Fresh start** option.
+- **Room storage ahead of schedule.** Books, sessions and reminders are saved on the phone and kept after the app closes, even though the database part comes later in the course.
 - **Preview** link so a grader can see the Missed yesterday screen without waiting a day.
 - **Undo last session** after logging pages.
 - **Duplicate title check** on Add book and Edit title.
@@ -428,7 +462,7 @@ Things we added because they made the app feel more complete:
 Being honest about what is not done:
 
 - Reminders are saved and can be switched on and off, but the phone does not yet show a real notification. That needs the `POST_NOTIFICATIONS` permission flow and a scheduler.
-- Data is local only. Uninstalling the app deletes it.
+- Data is local only. Uninstalling the app deletes it, and the database is an early extra that may be reworked in the next part of the course.
 - Log pages and Reading session screens still carry some duplicated layout code that should move into `ui/components/`.
 - Manual tests and user testing results must be filled in by the team after they are run.
 
