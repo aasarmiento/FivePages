@@ -1,6 +1,5 @@
 package com.example.fivepages.ui.screens.addbook
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -12,34 +11,24 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SelectableDates
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
@@ -55,13 +44,15 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.fivepages.R
 import com.example.fivepages.model.dailyGoal
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import com.example.fivepages.ui.components.BackTopBar
+import com.example.fivepages.ui.components.PrimaryButton
+import com.example.fivepages.model.remainingDays
 
 
 private val DateFmt = SimpleDateFormat("MM / dd / yyyy", Locale.US).apply {
@@ -87,14 +78,7 @@ fun AddBookScreen(onBack: () -> Unit, onSave: (title: String, totalPages: Int, t
     val pages = pagesText.toIntOrNull() ?: 0
 
     // Days Left & Daily Goal Calculation
-    val daysLeft = remember(targetDateMillis) {
-        targetDateMillis?.let { target ->
-            val nowMs = System.currentTimeMillis()
-            val diffMs = target - nowMs
-            val calculatedDays = (diffMs / (1000 * 60 * 60 * 24)).toInt() + 1
-            if (calculatedDays > 0) calculatedDays else 1
-        } ?: 0
-    }
+    val daysLeft = remember(targetDateMillis) { targetDateMillis?.let { remainingDays(it) } ?: 0 }
     val perDay = if (pages > 0 && daysLeft > 0) dailyGoal(pages, daysLeft) else 0
     val titleTaken = !showAdded && title.isNotBlank() && isTitleTaken(title)
     val isFormValid = title.isNotBlank() && !titleTaken && pages > 0 && targetDateMillis != null
@@ -102,40 +86,7 @@ fun AddBookScreen(onBack: () -> Unit, onSave: (title: String, totalPages: Int, t
 
     Scaffold(
         containerColor = colors.background,
-        topBar = {
-            Column(Modifier.background(colors.background)) {
-                Row(
-                    Modifier
-                        .statusBarsPadding()
-                        .padding(horizontal = 20.dp, vertical = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Surface(
-                        onClick = onBack,
-                        shape = CircleShape,
-                        color = colors.surface,
-                        border = BorderStroke(1.dp, colors.outline),
-                        modifier = Modifier.size(40.dp),
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back",
-                                tint = colors.onSurface,
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-                    }
-                    Spacer(Modifier.width(14.dp))
-                    Text(
-                        text = "Add a book",
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = colors.onBackground
-                    )
-                }
-                HorizontalDivider(color = colors.outline)
-            }
-        },
+        topBar = { BackTopBar(title = "Add a book", onBack = onBack) },
         bottomBar = {
             Column(
                 Modifier
@@ -144,7 +95,8 @@ fun AddBookScreen(onBack: () -> Unit, onSave: (title: String, totalPages: Int, t
                     .imePadding()
                     .padding(20.dp)
             ) {
-                Button(
+                PrimaryButton(
+                    label = "Save to Library",
                     onClick = {
                         if (!showAdded) {
                             targetDateMillis?.let { targetMillis ->
@@ -154,23 +106,7 @@ fun AddBookScreen(onBack: () -> Unit, onSave: (title: String, totalPages: Int, t
                         }
                     },
                     enabled = isFormValid && !showAdded,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(52.dp),
-                    shape = RoundedCornerShape(14.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = colors.primary,
-                        contentColor = colors.onPrimary,
-                        disabledContainerColor = colors.surfaceVariant,
-                        disabledContentColor = colors.onSurfaceVariant.copy(alpha = 0.5f)
-                    )
-                ) {
-                    Text(
-                        text = "Save to Library",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+                )
             }
         }
     ) { padding ->
@@ -193,7 +129,7 @@ fun AddBookScreen(onBack: () -> Unit, onSave: (title: String, totalPages: Int, t
                 )
             }
 
-
+            // Total Pages Input
             LabeledField(label = "Total pages") {
                 FpTextField(
                     value = pagesText,
@@ -202,7 +138,7 @@ fun AddBookScreen(onBack: () -> Unit, onSave: (title: String, totalPages: Int, t
                     keyboard = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
             }
-
+            // Target Finish Date Input
             LabeledField(label = "Target finish date") {
                 Box {
                     FpTextField(
@@ -225,7 +161,7 @@ fun AddBookScreen(onBack: () -> Unit, onSave: (title: String, totalPages: Int, t
                     )
                 }
             }
-
+            // Dynamic Goal Card Calculation
             if (perDay > 0) {
                 GoalCard(perDay = perDay, pages = pages, days = daysLeft)
             }

@@ -84,11 +84,12 @@ fun buildProgressSummary(
     sessions: List<SessionLog>,
     now: Long,
     tz: TimeZone = TimeZone.getDefault(),
+    frozenDays: Set<Long> = emptySet(),
 ): ProgressSummary {
     val today = dayIndex(now, tz)
     val sessionDays = sessions.map { dayIndex(it.loggedAtMillis, tz) }.toSet()
     return ProgressSummary(
-        dayStreak = currentStreak(sessionDays, today),
+        dayStreak = streakWithFreezes(sessionDays, frozenDays, today),
         booksActive = books.count { it.pagesRead < it.totalPages },
         sessionsThisMonth = sessionsThisMonth(sessions, now, tz),
         week = weekDays(sessions, today, tz),

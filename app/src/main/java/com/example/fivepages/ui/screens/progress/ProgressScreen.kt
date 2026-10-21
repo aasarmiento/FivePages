@@ -10,26 +10,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MenuBook
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.ShowChart
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.font.FontStyle
@@ -41,15 +29,12 @@ import androidx.compose.ui.unit.dp
 import com.example.fivepages.model.ProgressSummary
 import com.example.fivepages.model.WeekDay
 import com.example.fivepages.ui.theme.FivePagesTheme
+import com.example.fivepages.ui.components.AppBottomBar
+import com.example.fivepages.ui.components.AppTab
+import com.example.fivepages.ui.components.TitleTopBar
 
 private val MinBarHeight = 14.dp
 private val MaxBarExtra = 76.dp
-
-private enum class ProgressTab(val label: String, val icon: ImageVector) {
-    Library("Library", Icons.Filled.MenuBook),
-    Progress("Progress", Icons.Filled.ShowChart),
-    Settings("Settings", Icons.Filled.Settings),
-}
 
 @Composable
 fun ProgressScreen(
@@ -61,20 +46,8 @@ fun ProgressScreen(
 
     Scaffold(
         containerColor = colors.background,
-        topBar = {
-            Column(Modifier.background(colors.background)) {
-                Text(
-                    text = "Progress",
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = colors.onBackground,
-                    modifier = Modifier
-                        .statusBarsPadding()
-                        .padding(horizontal = 20.dp, vertical = 14.dp)
-                )
-                HorizontalDivider(color = colors.outline)
-            }
-        },
-        bottomBar = { ProgressBottomBar(onTabSelected) },
+        topBar = { TitleTopBar("Progress") },
+        bottomBar = { AppBottomBar(AppTab.Progress, onTabSelected) },
     ) { padding ->
         Column(
             Modifier
@@ -179,35 +152,6 @@ private fun WeekChart(week: List<WeekDay>) {
                     color = if (day.isToday) colors.primary else colors.onSurfaceVariant
                 )
             }
-        }
-    }
-}
-
-@Composable
-private fun ProgressBottomBar(onTabSelected: (String) -> Unit) {
-    val colors = MaterialTheme.colorScheme
-    NavigationBar(containerColor = colors.surface) {
-        ProgressTab.entries.forEach { tab ->
-            val selected = tab == ProgressTab.Progress
-            NavigationBarItem(
-                selected = selected,
-                onClick = { if (!selected) onTabSelected(tab.label) },
-                icon = { Icon(tab.icon, contentDescription = null) },
-                label = {
-                    Text(
-                        tab.label,
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
-                    )
-                },
-                colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = colors.primary,
-                    selectedTextColor = colors.primary,
-                    unselectedIconColor = colors.onSurfaceVariant,
-                    unselectedTextColor = colors.onSurfaceVariant,
-                    indicatorColor = Color.Transparent,
-                ),
-            )
         }
     }
 }

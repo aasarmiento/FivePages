@@ -18,6 +18,14 @@ object Routes {
     fun bookOptions(bookId: Int) = "book_options/$bookId"
     fun editTitle(bookId: Int) = "edit_title/$bookId"
     fun editGoal(bookId: Int) = "edit_goal/$bookId"
+    const val SESSION_HISTORY = "session_history/{bookId}"
+    fun sessionHistory(bookId: Int) = "session_history/$bookId"
+
+    const val MISSED_YESTERDAY = "missed_yesterday/{preview}"
+    fun missedYesterday(preview: Boolean) = "missed_yesterday/$preview"
+    const val GRACE_DAY_USED = "grace_day_used/{streak}/{left}"
+    fun graceDayUsed(streak: Int, left: Int) = "grace_day_used/$streak/$left"
+    const val FRESH_START = "fresh_start"
 
     //Onboarding Screens
     const val ONBOARDING_WELCOME = "onboarding_welcome"

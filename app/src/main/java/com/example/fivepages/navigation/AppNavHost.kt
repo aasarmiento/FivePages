@@ -3,6 +3,7 @@ package com.example.fivepages.navigation
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -30,6 +31,11 @@ import com.example.fivepages.ui.screens.addbook.SessionLoggedScreen
 import com.example.fivepages.ui.screens.bookoptions.BookOptionsScreen
 import com.example.fivepages.ui.screens.bookoptions.EditGoalScreen
 import com.example.fivepages.ui.screens.bookoptions.EditTitleScreen
+import com.example.fivepages.ui.screens.bookoptions.SessionHistoryScreen
+import com.example.fivepages.model.sessionsForBook
+import com.example.fivepages.ui.screens.progress.FreshStartScreen
+import com.example.fivepages.ui.screens.progress.GraceDayUsedScreen
+import com.example.fivepages.ui.screens.progress.MissedYesterdayScreen
 import com.example.fivepages.ui.screens.progress.ProgressScreen
 import com.example.fivepages.ui.screens.settings.ReminderWindowScreen
 
@@ -132,9 +138,72 @@ fun AppNavHost(appState: AppState) {
 
         //Progress
         composable(Routes.PROGRESS) {
+            var prompted by rememberSaveable { mutableStateOf(false) }
+            LaunchedEffect(appState.isLoaded) {
+                if (!prompted && appState.missedStreak() > 0) {
+                    prompted = true
+                    navController.navigate(Routes.missedYesterday(false)) { launchSingleTop = true }
+                }
+            }
             ProgressScreen(
                 summary = appState.progressSummary(),
-                onTabSelected = goToTab
+                onTabSelected = goToTab,
+                onPreviewMissedDay = {
+                    navController.navigate(Routes.missedYesterday(true)) { launchSingleTop = true }
+                }
+            )
+        }
+
+        composable(
+            Routes.MISSED_YESTERDAY,
+            arguments = listOf(navArgument("preview") { type = NavType.BoolType })
+        ) { entry ->
+            val preview = entry.arguments?.getBoolean("preview") ?: false
+            val streak = remember {
+                if (preview) appState.progressSummary().dayStreak.takeIf { it > 0 } ?: 5
+                else appState.missedStreak()
+            }
+            val freezes = remember { appState.freezesLeftThisMonth() }
+            MissedYesterdayScreen(
+                streak = streak,
+                freezesLeft = freezes,
+                onBack = { navController.goBack() },
+                onUseFreeze = {
+                    if (!preview) appState.useStreakFreeze()
+                    val left = if (preview) (freezes - 1).coerceAtLeast(0) else appState.freezesLeftThisMonth()
+                    navController.navigate(Routes.graceDayUsed(streak, left)) {
+                        popUpTo(Routes.MISSED_YESTERDAY) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
+                onStartFresh = {
+                    if (!preview) appState.startFreshToday()
+                    navController.navigate(Routes.FRESH_START) {
+                        popUpTo(Routes.MISSED_YESTERDAY) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+
+        composable(
+            Routes.GRACE_DAY_USED,
+            arguments = listOf(
+                navArgument("streak") { type = NavType.IntType },
+                navArgument("left") { type = NavType.IntType }
+            )
+        ) { entry ->
+            GraceDayUsedScreen(
+                streak = entry.arguments?.getInt("streak") ?: 0,
+                freezesLeft = entry.arguments?.getInt("left") ?: 0,
+                onBackToProgress = { navController.popBackStack(Routes.PROGRESS, inclusive = false) }
+            )
+        }
+
+        composable(Routes.FRESH_START) {
+            FreshStartScreen(
+                onStartSession = { navController.popBackStack(Routes.LIBRARY, inclusive = false) },
+                onBackToProgress = { navController.popBackStack(Routes.PROGRESS, inclusive = false) }
             )
         }
 
@@ -184,6 +253,7 @@ fun AppNavHost(appState: AppState) {
                     navController.navigate(Routes.readingSession(bookId)) { launchSingleTop = true }
                 },
                 onLogPages = {
+                    appState.pendingDurationSeconds = 0
                     navController.navigate(Routes.logPages(bookId)) { launchSingleTop = true }
                 },
                 onOptions = {
@@ -200,8 +270,12 @@ fun AppNavHost(appState: AppState) {
         ) { entry ->
             val bookId = entry.arguments?.getInt("bookId") ?: return@composable
 
+            val startedAt = rememberSaveable { System.currentTimeMillis() }
+
             ReadingSessionScreen(
                 onComplete = {
+                    appState.pendingDurationSeconds =
+                        ((System.currentTimeMillis() - startedAt) / 1000).toInt()
                     navController.navigate(Routes.logPages(bookId)) {
                         popUpTo(Routes.READING_SESSION) { inclusive = true }
                         launchSingleTop = true
@@ -272,7 +346,10 @@ fun AppNavHost(appState: AppState) {
                     navController.navigate(Routes.editGoal(bookId)) { launchSingleTop = true }
                 },
                 onDeleteConfirmed = { appState.deleteBook(bookId) },
-                onDeletedDone = { navController.popBackStack(Routes.LIBRARY, inclusive = false) }
+                onDeletedDone = { navController.popBackStack(Routes.LIBRARY, inclusive = false) },
+                onSessionHistory = {
+                    navController.navigate(Routes.sessionHistory(bookId)) { launchSingleTop = true }
+                }
             )
         }
 
@@ -286,7 +363,19 @@ fun AppNavHost(appState: AppState) {
                 currentTitle = book.title,
                 onBack = { navController.goBack() },
                 onSave = { newTitle -> appState.renameBook(bookId, newTitle) },
+                onDone = { navController.popBackStack(Routes.LIBRARY, inclusive = false) },
                 isTitleTaken = { appState.titleExists(it, exceptId = bookId) }
+            )
+        }
+
+        composable(
+            Routes.SESSION_HISTORY,
+            arguments = listOf(navArgument("bookId") { type = NavType.IntType })
+        ) { entry ->
+            val bookId = entry.arguments?.getInt("bookId") ?: return@composable
+            SessionHistoryScreen(
+                sessions = sessionsForBook(appState.sessions, bookId),
+                onBack = { navController.goBack() }
             )
         }
 
@@ -301,7 +390,8 @@ fun AppNavHost(appState: AppState) {
                 pagesRead = book.pagesRead,
                 targetDateMillis = book.targetDateMillis,
                 onBack = { navController.goBack() },
-                onSave = { newTotal, newDate -> appState.updateGoal(bookId, newTotal, newDate) }
+                onSave = { newTotal, newDate -> appState.updateGoal(bookId, newTotal, newDate) },
+                onDone = { navController.popBackStack(Routes.LIBRARY, inclusive = false) }
             )
         }
     }

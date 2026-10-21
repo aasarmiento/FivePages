@@ -10,16 +10,22 @@ private val FivePagesColorScheme = lightColorScheme(
     onPrimary = FpWhite,
     primaryContainer = FpGoalGreen,
     onPrimaryContainer = FpGoalInk,
+    secondary = FpGreen,
+    onSecondary = FpWhite,
     secondaryContainer = FpTint,
     onSecondaryContainer = FpGreen,
+    tertiary = FpGreen,
+    onTertiary = FpWhite,
     background = FpBackground,
     onBackground = FpInk,
     surface = FpWhite,
     onSurface = FpInk,
+    surfaceVariant = FpLine,
     onSurfaceVariant = FpMuted,
     outline = FpLine,
     outlineVariant = FpLine,
     error = FpDanger,
+    onError = FpWhite,
 )
 
 @Composable

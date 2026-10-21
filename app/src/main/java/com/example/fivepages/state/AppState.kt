@@ -20,6 +20,8 @@ import com.example.fivepages.model.SessionLog
 import com.example.fivepages.model.buildProgressSummary
 import com.example.fivepages.model.currentStreak
 import com.example.fivepages.model.dayIndex
+import com.example.fivepages.model.freezesLeft
+import com.example.fivepages.model.missedYesterdayStreak
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
@@ -33,11 +35,16 @@ class AppState(application: Application) : AndroidViewModel(application) {
     val books = mutableStateListOf<Book>()
     val sessions = mutableStateListOf<SessionLog>()
 
+    var pendingDurationSeconds = 0
+
     //Reminder Windows (starts with the two examples from Figma)
     val reminderWindows = mutableStateListOf<ReminderWindow>()
 
     var isLoaded by mutableStateOf(false)
         private set
+
+    private var frozenDays by mutableStateOf(loadFrozenDays())
+    private var freshStartDay by mutableStateOf(prefs.getLong(KEY_FRESH_START_DAY, -1L))
 
     val onboarded: Boolean
         get() = prefs.getBoolean(KEY_ONBOARDED, false)
@@ -132,7 +139,8 @@ class AppState(application: Application) : AndroidViewModel(application) {
         val updatedBook = b.copy(pagesRead = updatedPages)
         books[i] = updatedBook
         val id = (sessions.maxOfOrNull { it.id } ?: 0) + 1
-        val session = SessionLog(id, bookId, added, System.currentTimeMillis())
+        val session = SessionLog(id, bookId, added, System.currentTimeMillis(), pendingDurationSeconds)
+        pendingDurationSeconds = 0
         sessions.add(session)
         persist {
             upsertBook(updatedBook.toEntity())
@@ -156,7 +164,7 @@ class AppState(application: Application) : AndroidViewModel(application) {
     }
 
     fun progressSummary(now: Long = System.currentTimeMillis()): ProgressSummary =
-        buildProgressSummary(books, sessions, now)
+        buildProgressSummary(books, sessions, now, frozenDays = frozenDays)
 
     fun titleExists(title: String, exceptId: Int? = null): Boolean {
         val wanted = normalizeTitle(title)
@@ -195,8 +203,41 @@ class AppState(application: Application) : AndroidViewModel(application) {
         persist { deleteBookById(bookId) }
     }
 
+    private fun sessionDays(): Set<Long> = sessions.map { dayIndex(it.loggedAtMillis) }.toSet()
+
+    private fun loadFrozenDays(): Set<Long> =
+        prefs.getStringSet(KEY_FROZEN_DAYS, emptySet())
+            .orEmpty()
+            .mapNotNull { it.toLongOrNull() }
+            .toSet()
+
+    fun missedStreak(now: Long = System.currentTimeMillis()): Int {
+        val today = dayIndex(now)
+        if (freshStartDay == today) return 0
+        return missedYesterdayStreak(sessionDays(), frozenDays, today)
+    }
+
+    fun freezesLeftThisMonth(now: Long = System.currentTimeMillis()): Int =
+        freezesLeft(frozenDays, dayIndex(now))
+
+    fun useStreakFreeze(now: Long = System.currentTimeMillis()): Boolean {
+        if (missedStreak(now) == 0 || freezesLeftThisMonth(now) == 0) return false
+        frozenDays = frozenDays + (dayIndex(now) - 1)
+        prefs.edit()
+            .putStringSet(KEY_FROZEN_DAYS, frozenDays.map { it.toString() }.toSet())
+            .apply()
+        return true
+    }
+
+    fun startFreshToday(now: Long = System.currentTimeMillis()) {
+        freshStartDay = dayIndex(now)
+        prefs.edit().putLong(KEY_FRESH_START_DAY, freshStartDay).apply()
+    }
+
     private companion object {
         const val KEY_ONBOARDED = "onboarded"
+        const val KEY_FROZEN_DAYS = "frozen_days"
+        const val KEY_FRESH_START_DAY = "fresh_start_day"
         const val KEY_SEEDED = "reminders_seeded"
     }
 }

@@ -1,16 +1,13 @@
 package com.example.fivepages.ui.screens.bookoptions
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -33,14 +30,12 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import com.example.fivepages.ui.components.BackTopBar
+import com.example.fivepages.ui.components.PrimaryButton
+import com.example.fivepages.model.remainingDays
 
 private val DateFmt = SimpleDateFormat("MM / dd / yyyy", Locale.US).apply {
     timeZone = TimeZone.getTimeZone("UTC")
-}
-
-private fun daysUntil(targetMillis: Long): Int {
-    val days = ((targetMillis - System.currentTimeMillis()) / (1000 * 60 * 60 * 24)).toInt() + 1
-    return if (days > 0) days else 1
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -51,6 +46,7 @@ fun EditGoalScreen(
     targetDateMillis: Long,
     onBack: () -> Unit,
     onSave: (newTotalPages: Int, newTargetDateMillis: Long) -> Unit,
+    onDone: () -> Unit = onBack,
 ) {
     val colors = MaterialTheme.colorScheme
 
@@ -61,7 +57,7 @@ fun EditGoalScreen(
 
     val pages = pagesText.toIntOrNull() ?: 0
     val pagesLeft = (pages - pagesRead).coerceAtLeast(0)
-    val daysLeft = daysUntil(dateMillis)
+    val daysLeft = remainingDays(dateMillis)
     val perDay = dailyGoal(pagesLeft, daysLeft)
     val pagesError = when {
         pages <= 0 -> "Enter the total number of pages"
@@ -71,40 +67,7 @@ fun EditGoalScreen(
 
     Scaffold(
         containerColor = colors.background,
-        topBar = {
-            Column(Modifier.background(colors.background)) {
-                Row(
-                    Modifier
-                        .statusBarsPadding()
-                        .padding(horizontal = 20.dp, vertical = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Surface(
-                        onClick = onBack,
-                        shape = CircleShape,
-                        color = colors.surface,
-                        border = BorderStroke(1.dp, colors.outline),
-                        modifier = Modifier.size(40.dp),
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back",
-                                tint = colors.onSurface,
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-                    }
-                    Spacer(Modifier.width(14.dp))
-                    Text(
-                        text = "Edit goal",
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = colors.onBackground
-                    )
-                }
-                HorizontalDivider(color = colors.outline)
-            }
-        },
+        topBar = { BackTopBar(title = "Edit goal", onBack = onBack) },
         bottomBar = {
             Column(
                 Modifier
@@ -113,7 +76,8 @@ fun EditGoalScreen(
                     .imePadding()
                     .padding(20.dp)
             ) {
-                Button(
+                PrimaryButton(
+                    label = "Save",
                     onClick = {
                         if (!showUpdated) {
                             onSave(pages, dateMillis)
@@ -121,17 +85,7 @@ fun EditGoalScreen(
                         }
                     },
                     enabled = pagesError == null && !showUpdated,
-                    modifier = Modifier.fillMaxWidth().height(52.dp),
-                    shape = RoundedCornerShape(14.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = colors.primary,
-                        contentColor = colors.onPrimary,
-                        disabledContainerColor = colors.surfaceVariant,
-                        disabledContentColor = colors.onSurfaceVariant.copy(alpha = 0.5f)
-                    ),
-                ) {
-                    Text("Save", style = MaterialTheme.typography.titleSmall)
-                }
+                )
             }
         },
     ) { padding ->
@@ -223,7 +177,7 @@ fun EditGoalScreen(
     }
 
     if (showUpdated) {
-        GoalUpdatedDialog(perDay = perDay, finished = pagesLeft == 0, onDone = onBack)
+        GoalUpdatedDialog(perDay = perDay, finished = pagesLeft == 0, onDone = onDone)
     }
 }
 

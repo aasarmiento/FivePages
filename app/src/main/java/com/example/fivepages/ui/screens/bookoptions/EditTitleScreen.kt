@@ -1,23 +1,20 @@
 package com.example.fivepages.ui.screens.bookoptions
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.fivepages.ui.theme.FivePagesTheme
+import com.example.fivepages.ui.components.BackTopBar
+import com.example.fivepages.ui.components.PrimaryButton
 
 @Composable
 fun EditTitleScreen(
@@ -25,6 +22,7 @@ fun EditTitleScreen(
     onBack: () -> Unit,
     onSave: (newTitle: String) -> Unit,
     isTitleTaken: (String) -> Boolean = { false },
+    onDone: () -> Unit = onBack,
 ) {
     val colors = MaterialTheme.colorScheme
 
@@ -34,40 +32,7 @@ fun EditTitleScreen(
 
     Scaffold(
         containerColor = colors.background,
-        topBar = {
-            Column(Modifier.background(colors.background)) {
-                Row(
-                    Modifier
-                        .statusBarsPadding()
-                        .padding(horizontal = 20.dp, vertical = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Surface(
-                        onClick = onBack,
-                        shape = CircleShape,
-                        color = colors.surface,
-                        border = BorderStroke(1.dp, colors.outline),
-                        modifier = Modifier.size(40.dp),
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back",
-                                tint = colors.onSurface,
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-                    }
-                    Spacer(Modifier.width(14.dp))
-                    Text(
-                        text = "Edit title",
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = colors.onBackground
-                    )
-                }
-                HorizontalDivider(color = colors.outline)
-            }
-        },
+        topBar = { BackTopBar(title = "Edit title", onBack = onBack) },
         bottomBar = {
             Column(
                 Modifier
@@ -76,7 +41,8 @@ fun EditTitleScreen(
                     .imePadding()
                     .padding(20.dp)
             ) {
-                Button(
+                PrimaryButton(
+                    label = "Save",
                     onClick = {
                         if (!showUpdated) {
                             onSave(title.trim())
@@ -84,17 +50,7 @@ fun EditTitleScreen(
                         }
                     },
                     enabled = title.isNotBlank() && !taken && !showUpdated,
-                    modifier = Modifier.fillMaxWidth().height(52.dp),
-                    shape = RoundedCornerShape(14.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = colors.primary,
-                        contentColor = colors.onPrimary,
-                        disabledContainerColor = colors.surfaceVariant,
-                        disabledContentColor = colors.onSurfaceVariant.copy(alpha = 0.5f)
-                    ),
-                ) {
-                    Text("Save", style = MaterialTheme.typography.titleSmall)
-                }
+                )
             }
         },
     ) { padding ->
@@ -129,7 +85,7 @@ fun EditTitleScreen(
     }
 
     if (showUpdated) {
-        TitleUpdatedDialog(newTitle = title.trim(), onDone = onBack)
+        TitleUpdatedDialog(newTitle = title.trim(), onDone = onDone)
     }
 }
 

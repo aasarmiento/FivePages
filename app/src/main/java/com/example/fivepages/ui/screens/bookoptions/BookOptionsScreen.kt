@@ -4,10 +4,8 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
@@ -23,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.fivepages.ui.theme.FivePagesTheme
+import com.example.fivepages.ui.components.BackTopBar
 
 @Composable
 fun BookOptionsScreen(
@@ -41,40 +40,7 @@ fun BookOptionsScreen(
 
     Scaffold(
         containerColor = colors.background,
-        topBar = {
-            Column(Modifier.background(colors.background)) {
-                Row(
-                    Modifier
-                        .statusBarsPadding()
-                        .padding(horizontal = 20.dp, vertical = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Surface(
-                        onClick = onBack,
-                        shape = CircleShape,
-                        color = colors.surface,
-                        border = BorderStroke(1.dp, colors.outline),
-                        modifier = Modifier.size(40.dp),
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back",
-                                tint = colors.onSurface,
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-                    }
-                    Spacer(Modifier.width(14.dp))
-                    Text(
-                        text = "Book Options",
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = colors.onBackground
-                    )
-                }
-                HorizontalDivider(color = colors.outline)
-            }
-        },
+        topBar = { BackTopBar(title = "Book Options", onBack = onBack) },
     ) { padding ->
         Column(
             Modifier

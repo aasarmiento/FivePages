@@ -1,11 +1,9 @@
 package com.example.fivepages.ui.screens.settings
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,18 +11,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -50,6 +38,8 @@ import androidx.compose.ui.window.DialogProperties
 import com.example.fivepages.model.ReminderWindow
 import com.example.fivepages.model.timeText
 import com.example.fivepages.ui.theme.FivePagesTheme
+import com.example.fivepages.ui.components.BackTopBar
+import com.example.fivepages.ui.components.PrimaryButton
 
 //reminder = null means we are adding a new reminder
 @Composable
@@ -81,40 +71,7 @@ fun ReminderWindowScreen(
     Scaffold(
         containerColor = colors.background,
         //Title
-        topBar = {
-            Column(Modifier.background(colors.background)) {
-                Row(
-                    Modifier
-                        .statusBarsPadding()
-                        .padding(horizontal = 20.dp, vertical = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Surface(
-                        onClick = onBack,
-                        shape = CircleShape,
-                        color = colors.surface,
-                        border = BorderStroke(1.dp, colors.outline),
-                        modifier = Modifier.size(40.dp),
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back",
-                                tint = colors.onSurface,
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-                    }
-                    Spacer(Modifier.width(14.dp))
-                    Text(
-                        text = "Reminder window",
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = colors.onBackground
-                    )
-                }
-                HorizontalDivider(color = colors.outline)
-            }
-        },
+        topBar = { BackTopBar(title = "Reminder window", onBack = onBack) },
         //Save and Delete Buttons
         bottomBar = {
             Column(
@@ -124,20 +81,13 @@ fun ReminderWindowScreen(
                     .padding(horizontal = 20.dp, vertical = 12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Button(
+                PrimaryButton(
+                    label = "Save",
                     onClick = {
                         onSave(finalName, hour, minute, enabled)
                         showSaved = true
                     },
-                    modifier = Modifier.fillMaxWidth().height(52.dp),
-                    shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = colors.primary,
-                        contentColor = colors.onPrimary
-                    ),
-                ) {
-                    Text("Save", style = MaterialTheme.typography.titleSmall)
-                }
+                )
 
                 //Delete is only for existing reminders
                 if (reminder != null) {
