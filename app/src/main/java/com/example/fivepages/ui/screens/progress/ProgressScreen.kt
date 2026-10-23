@@ -14,16 +14,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.fivepages.model.ProgressSummary
@@ -31,6 +28,7 @@ import com.example.fivepages.model.WeekDay
 import com.example.fivepages.ui.theme.FivePagesTheme
 import com.example.fivepages.ui.components.AppBottomBar
 import com.example.fivepages.ui.components.AppTab
+import com.example.fivepages.ui.components.AppTextButton
 import com.example.fivepages.ui.components.TitleTopBar
 
 private val MinBarHeight = 14.dp
@@ -73,18 +71,13 @@ fun ProgressScreen(
             }
 
             if (onPreviewMissedDay != null) {
-                TextButton(
+                AppTextButton(
+                    label = "Preview: what happens if I miss a day?",
                     onClick = onPreviewMissedDay,
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
-                ) {
-                    Text(
-                        text = "Preview: what happens if I miss a day?",
-                        style = MaterialTheme.typography.bodySmall,
-                        fontStyle = FontStyle.Italic,
-                        textDecoration = TextDecoration.Underline,
-                        color = colors.error
-                    )
-                }
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    color = colors.error,
+                    asLink = true,
+                )
             }
         }
     }

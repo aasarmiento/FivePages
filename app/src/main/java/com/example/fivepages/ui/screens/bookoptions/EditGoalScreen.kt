@@ -3,7 +3,6 @@ package com.example.fivepages.ui.screens.bookoptions
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -30,7 +29,11 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import com.example.fivepages.ui.components.AppPickerField
+import com.example.fivepages.ui.components.AppTextButton
+import com.example.fivepages.ui.components.AppTextField
 import com.example.fivepages.ui.components.BackTopBar
+import com.example.fivepages.ui.components.LabeledField
 import com.example.fivepages.ui.components.PrimaryButton
 import com.example.fivepages.model.remainingDays
 
@@ -95,46 +98,30 @@ fun EditGoalScreen(
                 .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(18.dp)
         ) {
-            GoalField(label = "Total pages") {
-                OutlinedTextField(
+            LabeledField(label = "Total pages") {
+                AppTextField(
                     value = pagesText,
-                    onValueChange = { v -> pagesText = v.filter(Char::isDigit).take(5) },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    textStyle = MaterialTheme.typography.bodyLarge,
+                    onChange = { v -> pagesText = v.filter(Char::isDigit).take(5) },
+                    placeholder = "e.g. 250",
+                    keyboard = KeyboardOptions(keyboardType = KeyboardType.Number),
                     isError = pagesError != null,
-                    supportingText = pagesError?.let { { Text(it) } },
-                    shape = RoundedCornerShape(14.dp),
-                    colors = fieldColors(),
+                    errorText = pagesError,
                 )
             }
 
-            GoalField(label = "Target finish date") {
-                Box {
-                    OutlinedTextField(
-                        value = DateFmt.format(Date(dateMillis)),
-                        onValueChange = {},
-                        readOnly = true,
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                        textStyle = MaterialTheme.typography.bodyLarge,
-                        trailingIcon = {
-                            Icon(
-                                imageVector = Icons.Filled.CalendarMonth,
-                                contentDescription = "Pick a date",
-                                tint = colors.primary
-                            )
-                        },
-                        shape = RoundedCornerShape(14.dp),
-                        colors = fieldColors(),
-                    )
-                    Box(
-                        Modifier
-                            .matchParentSize()
-                            .clickable { showPicker = true }
-                    )
-                }
+            LabeledField(label = "Target finish date") {
+                AppPickerField(
+                    value = DateFmt.format(Date(dateMillis)),
+                    placeholder = "mm / dd / yyyy",
+                    onClick = { showPicker = true },
+                    trailing = {
+                        Icon(
+                            imageVector = Icons.Filled.CalendarMonth,
+                            contentDescription = "Pick a date",
+                            tint = colors.primary
+                        )
+                    },
+                )
             }
 
             if (pagesError == null && perDay > 0) {
@@ -157,19 +144,22 @@ fun EditGoalScreen(
         DatePickerDialog(
             onDismissRequest = { showPicker = false },
             confirmButton = {
-                TextButton(
+                AppTextButton(
+                    label = "OK",
                     onClick = {
                         pickerState.selectedDateMillis?.let { dateMillis = it }
                         showPicker = false
-                    }
-                ) {
-                    Text("OK", color = colors.primary)
-                }
+                    },
+                    color = colors.primary,
+                    style = MaterialTheme.typography.labelLarge,
+                )
             },
             dismissButton = {
-                TextButton(onClick = { showPicker = false }) {
-                    Text("Cancel", color = colors.onSurfaceVariant)
-                }
+                AppTextButton(
+                    label = "Cancel",
+                    onClick = { showPicker = false },
+                    style = MaterialTheme.typography.labelLarge,
+                )
             }
         ) {
             DatePicker(state = pickerState)
@@ -179,30 +169,6 @@ fun EditGoalScreen(
     if (showUpdated) {
         GoalUpdatedDialog(perDay = perDay, finished = pagesLeft == 0, onDone = onDone)
     }
-}
-
-@Composable
-private fun GoalField(label: String, content: @Composable () -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onBackground
-        )
-        content()
-    }
-}
-
-@Composable
-private fun fieldColors(): TextFieldColors {
-    val colors = MaterialTheme.colorScheme
-    return OutlinedTextFieldDefaults.colors(
-        focusedContainerColor = colors.surface,
-        unfocusedContainerColor = colors.surface,
-        focusedBorderColor = colors.primary,
-        unfocusedBorderColor = colors.outline,
-        cursorColor = colors.primary,
-    )
 }
 
 @Composable
