@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.fivepages.R
 import com.example.fivepages.ui.theme.FivePagesTheme
+import com.example.fivepages.ui.components.AppTextButton
 import com.example.fivepages.ui.components.BackTopBar
 import com.example.fivepages.ui.components.PrimaryButton
 
@@ -64,13 +64,7 @@ fun MissedYesterdayScreen(
                     onClick = onUseFreeze,
                     enabled = freezesLeft > 0,
                 )
-                TextButton(onClick = onStartFresh) {
-                    Text(
-                        text = "Start a new streak today",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = colors.onSurfaceVariant
-                    )
-                }
+                AppTextButton("Start a new streak today", onStartFresh)
             }
         },
     ) { padding ->
@@ -190,13 +184,7 @@ fun FreshStartScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 PrimaryButton("Start a Session Now", onStartSession)
-                TextButton(onClick = onBackToProgress) {
-                    Text(
-                        text = "Back to Progress",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = colors.onSurfaceVariant
-                    )
-                }
+                AppTextButton("Back to Progress", onBackToProgress)
             }
         },
     ) { padding ->

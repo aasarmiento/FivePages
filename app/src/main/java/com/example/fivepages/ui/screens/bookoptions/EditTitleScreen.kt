@@ -2,7 +2,6 @@ package com.example.fivepages.ui.screens.bookoptions
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -13,7 +12,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.fivepages.ui.theme.FivePagesTheme
+import com.example.fivepages.ui.components.AppTextField
 import com.example.fivepages.ui.components.BackTopBar
+import com.example.fivepages.ui.components.LabeledField
 import com.example.fivepages.ui.components.PrimaryButton
 
 @Composable
@@ -59,28 +60,19 @@ fun EditTitleScreen(
                 .padding(padding)
                 .padding(20.dp)
         ) {
-            Text("Book title", style = MaterialTheme.typography.labelLarge, color = colors.onBackground)
-            Spacer(Modifier.height(8.dp))
-            OutlinedTextField(
-                value = title,
-                onValueChange = { if (it.length <= 60) title = it },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                textStyle = MaterialTheme.typography.bodyLarge,
-                isError = title.isBlank() || taken,
-                supportingText = {
-                    if (title.isBlank()) Text("Title can't be empty")
-                    else if (taken) Text("You already have a book with this title")
-                },
-                shape = RoundedCornerShape(14.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = colors.surface,
-                    unfocusedContainerColor = colors.surface,
-                    focusedBorderColor = colors.primary,
-                    unfocusedBorderColor = colors.outline,
-                    cursorColor = colors.primary,
-                ),
-            )
+            LabeledField(label = "Book title") {
+                AppTextField(
+                    value = title,
+                    onChange = { if (it.length <= 60) title = it },
+                    placeholder = "e.g. Before the Coffee Gets Cold",
+                    isError = title.isBlank() || taken,
+                    errorText = when {
+                        title.isBlank() -> "Title can't be empty"
+                        taken -> "You already have a book with this title"
+                        else -> null
+                    },
+                )
+            }
         }
     }
 

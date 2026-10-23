@@ -22,13 +22,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.automirrored.filled.ShowChart
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.LocalFireDepartment
-import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.ShowChart
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -70,8 +70,8 @@ import com.example.fivepages.ui.theme.FivePagesTheme
 
 //Bottom Tabs
 private enum class Tab(val label: String, val icon: ImageVector) {
-    Library("Library", Icons.Filled.MenuBook),
-    Progress("Progress", Icons.Filled.ShowChart),
+    Library("Library", Icons.AutoMirrored.Filled.MenuBook),
+    Progress("Progress", Icons.AutoMirrored.Filled.ShowChart),
     Settings("Settings", Icons.Filled.Settings),
 }
 
@@ -441,7 +441,7 @@ private fun EmptyLibraryState(modifier: Modifier = Modifier) {
             contentAlignment = Alignment.Center,
         ) {
             Icon(
-                Icons.Filled.MenuBook,
+                Icons.AutoMirrored.Filled.MenuBook,
                 contentDescription = null,
                 tint = colors.primary,
                 modifier = Modifier.size(36.dp),

@@ -5,9 +5,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.fivepages.R
 import com.example.fivepages.ui.components.AppDialog
+import com.example.fivepages.ui.components.AppTextButton
 import com.example.fivepages.ui.components.DialogImage
 import com.example.fivepages.ui.components.DialogOutlineButton
-import com.example.fivepages.ui.components.DialogTextButton
 import com.example.fivepages.ui.theme.FivePagesTheme
 
 @Composable
@@ -19,7 +19,12 @@ fun DiscardSessionDialog(onKeep: () -> Unit, onDiscard: () -> Unit) {
         message = "Your reading time for this session won't be saved.",
     ) {
         DialogOutlineButton("Keep reading", onKeep)
-        DialogTextButton("Discard", MaterialTheme.colorScheme.error, onDiscard)
+        AppTextButton(
+            label = "Discard",
+            onClick = onDiscard,
+            color = MaterialTheme.colorScheme.error,
+            style = MaterialTheme.typography.labelLarge,
+        )
     }
 }
 

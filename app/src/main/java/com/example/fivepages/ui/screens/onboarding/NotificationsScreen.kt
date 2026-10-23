@@ -9,13 +9,13 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.fivepages.ui.components.AppTextButton
 import com.example.fivepages.ui.components.FullScreenPage
 import com.example.fivepages.ui.components.PageBody
 import com.example.fivepages.ui.components.PageDots
@@ -66,13 +66,7 @@ fun NotificationsScreen(
         PrimaryButton("Enable reminders", onEnableReminders)
 
         //Not Now Link
-        TextButton(onClick = onNotNow) {
-            Text(
-                text = "Not now",
-                style = MaterialTheme.typography.bodySmall,
-                color = colors.onSurfaceVariant
-            )
-        }
+        AppTextButton("Not now", onNotNow)
     }
 }
 

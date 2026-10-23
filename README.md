@@ -7,7 +7,7 @@
   <img alt="Jetpack Compose" src="https://img.shields.io/badge/Jetpack%20Compose-Material%203-2E6F40?logo=jetpackcompose&logoColor=white">
   <img alt="Room" src="https://img.shields.io/badge/Room-2.6.1-4285F4">
   <img alt="minSdk" src="https://img.shields.io/badge/minSdk-24-555">
-  <img alt="Unit tests" src="https://img.shields.io/badge/unit%20tests-33%20passing-2E6F40">
+  <img alt="Unit tests" src="https://img.shields.io/badge/unit%20tests-34%20passing-2E6F40">
   <img alt="Storage" src="https://img.shields.io/badge/storage-local%20only-555">
 </p>
 
@@ -25,10 +25,10 @@ Everything stays on the phone. No account, no internet, no ads.
 
 | Member | GitHub branch work (fill in) |
 |---|---|
-| Franzie Frielle Mangalindan | | Onboarding Screens, Settings, Reminders |
-| Sire Ermond Manalo | | Add Book, Book Details, Log Pages, Book, Color, Theme, Type, Library-Empty, nav-host, routes |
+| Franzie Frielle Mangalindan | Onboarding Screens, Settings, Reminders |
+| Sire Ermond Manalo | Add Book, Book Details, Log Pages, Book, Color, Theme, Type, Library-Empty, nav-host, routes |
 | Abigail Ann Sarmiento | Book options, session history, streak grace screens, theme, shared components, tests, docs |
-| Christian Allen Soriano | |
+| Christian Allen Soriano | Modularity cleanup, shared text fields and buttons, reminder dialogs, edit and streak screens |
 
 > Each member should list their own screens and commits in the right column before submission.
 
@@ -45,10 +45,11 @@ Everything stays on the phone. No account, no internet, no ads.
 7. [Run it](#run-it)
 8. [Testing](#testing)
 9. [Modularity: shared components](#modularity-shared-components)
-10. [User testing](#user-testing)
-11. [Rubric evidence](#rubric-evidence)
-12. [Beyond the Figma](#beyond-the-figma)
-13. [Known limits](#known-limits)
+10. [Design patterns](#design-patterns)
+11. [User testing](#user-testing)
+12. [Rubric evidence](#rubric-evidence)
+13. [Beyond the Figma](#beyond-the-figma)
+14. [Known limits](#known-limits)
 
 ---
 
@@ -184,25 +185,29 @@ FivePages/
         │       └── ui/
         │           ├── theme/               Color.kt, Theme.kt, Type.kt
         │           ├── components/          shared building blocks (see below)
-        │           │   ├── AppButtons.kt    PrimaryButton, OutlineButton, CircleIconButton
+        │           │   ├── AppButtons.kt    PrimaryButton, OutlineButton, AppTextButton, CircleIconButton
+        │           │   ├── AppControls.kt   AppTextField, AppPickerField, LabeledField, AppSwitch
         │           │   ├── AppTopBar.kt     BackTopBar, TitleTopBar
         │           │   ├── AppBottomBar.kt  AppBottomBar, AppTab
-        │           │   └── AppDialog.kt     AppDialog and its button variants
+        │           │   ├── AppDialog.kt     AppDialog and its button variants
+        │           │   └── PageLayout.kt    FullScreenPage, PageBody, PageDots
         │           └── screens/
         │               ├── addbook/         AddBookScreen, BookAddedDialog, BookDetailsScreen,
         │               │                    LogPagesScreen, ReadingSessionScreen,
-        │               │                    SessionLoggedScreen, StartSessionDialog
+        │               │                    SessionLoggedScreen, StartSessionDialog, DiscardSessionDialog
         │               ├── bookoptions/     BookOptionsScreen, EditTitleScreen, EditGoalScreen,
         │               │                    SessionHistoryScreen, Delete/Updated dialogs
+        │               ├── onboarding/      WelcomeScreen, HowItWorksScreen, NotificationsScreen,
+        │               │                    NotificationsPermission, RemindersOnDialog
         │               ├── progress/        ProgressScreen, StreakGraceScreens
-        │               ├── settings/        SettingsScreen, ReminderWindowScreen
-        │               └── (onboarding and reminder dialogs from the team's other branches)
+        │               └── settings/        SettingsScreen, ReminderWindowScreen,
+        │                                    Delete/Saved/Deleted reminder dialogs
         │
         ├── test/java/com/example/fivepages/model/
         │   ├── ProgressStatsTest.kt         11 tests
         │   ├── StreakGraceTest.kt           11 tests
         │   ├── SessionHistoryTest.kt         8 tests
-        │   └── DailyGoalTest.kt              2 tests
+        │   └── DailyGoalTest.kt              3 tests
         │   (ExampleUnitTest.kt, 1 template test, sits one folder up)
         └── androidTest/                     instrumented test template
 ```
@@ -368,20 +373,20 @@ In Android Studio you can also right-click `app/src/test` and choose *Run Tests*
 
 ## Testing
 
-### Automated: 33 unit tests, all passing
+### Automated: 34 unit tests, all passing
 
 <p align="center">
   <img src="docs/assets/unit-tests-passed.png" alt="Android Studio showing 33 tests passed" width="70%">
 </p>
 
-32 tests cover the pure functions in `model/`, so they run in seconds with no emulator. The 33rd is the `ExampleUnitTest` that Android Studio creates with every new project.
+33 tests cover the pure functions in `model/`, so they run in seconds with no emulator. The 34th is the `ExampleUnitTest` that Android Studio creates with every new project.
 
 | File | Tests | What is checked |
 |---|---:|---|
 | `ProgressStatsTest` | 11 | Streak counting, gap handling, week starts on Monday, sessions this month, active books, segment rounding, percent range |
 | `StreakGraceTest` | 11 | Missed yesterday, freeze keeps streak, frozen day not counted, monthly refill, month key |
 | `SessionHistoryTest` | 8 | Duration text (dash, under a minute, minutes, hours), page plurals, date format, only this book, newest first |
-| `DailyGoalTest` | 2 | Pages split evenly over days left, last day is all pages left |
+| `DailyGoalTest` | 3 | Pages split evenly over days left, last day is all pages left, rounds up to the next whole page |
 | `ExampleUnitTest` | 1 | Template test from Android Studio |
 
 <details>
@@ -426,6 +431,7 @@ In Android Studio you can also right-click `app/src/test` and choose *Run Tests*
 **DailyGoalTest**
 - `dailyGoal_splitsPagesEvenlyAcrossDays`
 - `dailyGoal_onTheLastDayIsAllThePagesLeft`
+- `dailyGoal_roundsUpToTheNextWholePage`
 
 </details>
 
@@ -437,18 +443,43 @@ The full table of screen-by-screen checks is in **[docs/TEST_CASES.md](docs/TEST
 
 ## Modularity: shared components
 
-Before this cleanup, the back header, the bottom bar, the dialogs and the green button were copied into many screens. They now live in `ui/components/` and every screen calls them.
+Before this cleanup, the back header, the bottom bar, the dialogs, the green button, the text fields, the small text buttons and the switches were copied into many screens. They now live in `ui/components/` and every screen calls them.
 
 | Component | Replaces | Used by |
 |---|---|---|
 | `BackTopBar(title, onBack, trailing)` | a hand-built back arrow and title row | Add book, Book details, Log pages, Edit title, Edit goal, Book options, Session history, Reminder window, Missed yesterday screens |
 | `TitleTopBar(title, style)` | a hand-built title row | My books, Progress, Settings, Reading session |
 | `AppBottomBar(selected, onTabSelected)` | the bottom bar copied into three screens | My books, Progress, Settings |
-| `AppDialog(icon, title, message, actions)` | each popup's own card layout | Book added, Book deleted, Delete book, Title updated, Goal updated, Discard session, Start session |
+| `AppDialog(icon, title, message, actions)` | each popup's own card layout | Book added, Book deleted, Delete book, Title updated, Goal updated, Discard session, Start session, Delete reminder, Reminder saved, Reminder deleted, Reminders are on |
 | `PrimaryButton`, `OutlineButton`, `CircleIconButton` | repeated button styling | Add book, Book details, Log pages, Reading session, Session logged, Edit title, Edit goal, Reminder window, streak screens and the dialogs |
+| `DialogPrimaryButton`, `DialogOutlineButton`, `DialogTextButton`, `DialogDangerButton` | each dialog's own copy of the button styling | every dialog. They now reuse `PrimaryButton`, `OutlineButton` and `AppTextButton` with the dialog's rounder shape |
+| `AppTextButton(label, onClick, color, style, asLink)` | small text-only buttons styled by hand in each screen | Welcome, Notifications, Reading session, Session logged, Discard session, Progress, streak screens, Reminder window, and the OK / Cancel in the Add book and Edit goal date pickers |
+| `AppTextField`, `AppPickerField`, `LabeledField` | the outlined text field and its label, copied into each form | Add book, Edit title, Edit goal, Reminder window |
+| `AppSwitch(checked, onCheckedChange)` | the same switch colours in two screens | Settings, Reminder window |
+| `FullScreenPage`, `PageBody`, `PageDots` | the full-screen layout and the onboarding dots | Welcome, How it works, Notifications, Session logged |
 | `remainingDays(target, now)` | the days-left maths copied in several files | Add book, Book details, Edit goal, My books |
 
+`CircleIconButton`, the round back button, now has a 48 dp tap area, the size Android recommends, so it is easier to hit. It looks the same, but the header row is a few pixels taller.
+
 Warning cleanup done so far: unused imports removed, deprecated `Icons.Filled.MenuBook` and `ShowChart` replaced with their `AutoMirrored` versions, `mutableStateOf(0)` replaced with `mutableIntStateOf(0)` in Log pages, and the shared helpers take `now` as a parameter so they are testable.
+
+---
+
+## Design patterns
+
+These are the patterns you can point to in the code. Each row names where to look. The reasons behind them are in [How the app is built](#how-the-app-is-built).
+
+| Pattern | Where | What it does for us |
+|---|---|---|
+| **State hoisting** | Every screen, for example `EditTitleScreen(currentTitle, onBack, onSave)` | Screens get their data and actions from outside and keep no app data of their own, so they are easy to preview and reuse. |
+| **Single source of truth** | `state/AppState.kt`, an `AndroidViewModel` | One place holds the books, sessions and reminders. It survives screen rotation. |
+| **Observer** | `mutableStateListOf` in `AppState` | When a list changes, every screen that reads it redraws by itself. |
+| **Producer and consumer queue** | The `Channel` in `AppState` | Database writes wait in one line, so two quick taps cannot race each other. |
+| **DAO** | `data/AppDao.kt` | Every read and write to Room goes through one interface. Screens never touch the database. |
+| **Singleton** | `FivePagesDatabase.get()` | The database file is opened once and reused. |
+| **Slot API (composition)** | `AppDialog(icon, …, actions)`, `LabeledField`, `FullScreenPage`, `BackTopBar(trailing)` | Shared components take other composables as parameters, so one layout serves many screens. |
+| **Pure functions for the rules** | `model/` | Streak, daily goal and history maths have no Android code, which is why the unit tests run without an emulator. |
+| **One place for navigation** | `navigation/Routes.kt` and `AppNavHost.kt` | One NavHost and one list of routes. No screen builds a route string by hand. |
 
 ---
 
@@ -482,7 +513,7 @@ Things we added because they made the app feel more complete:
 
 Being honest about what is not done:
 
-- Reminders are saved and can be switched on and off, but the phone does not yet show a real notification. That needs the `POST_NOTIFICATIONS` permission flow and a scheduler.
+- Reminders are saved and can be switched on and off, and the app asks for notification permission during onboarding, but nothing schedules or sends the notification yet, so a reminder never actually shows up on the phone. That needs a scheduler such as `AlarmManager` or `WorkManager`.
 - Data is local only. Uninstalling the app deletes it, and the database is an early extra that may be reworked in the next part of the course.
 
 ---

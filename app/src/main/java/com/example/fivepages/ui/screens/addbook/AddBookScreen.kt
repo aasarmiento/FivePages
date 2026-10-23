@@ -3,9 +3,7 @@ package com.example.fivepages.ui.screens.addbook
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -25,12 +23,9 @@ import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -50,7 +45,11 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import com.example.fivepages.ui.components.AppPickerField
+import com.example.fivepages.ui.components.AppTextButton
+import com.example.fivepages.ui.components.AppTextField
 import com.example.fivepages.ui.components.BackTopBar
+import com.example.fivepages.ui.components.LabeledField
 import com.example.fivepages.ui.components.PrimaryButton
 import com.example.fivepages.model.remainingDays
 
@@ -120,7 +119,7 @@ fun AddBookScreen(onBack: () -> Unit, onSave: (title: String, totalPages: Int, t
             ) {
             // Book Title Input
             LabeledField(label = "Book title") {
-                FpTextField(
+                AppTextField(
                     value = title,
                     onChange = { title = it },
                     placeholder = "e.g. Before the Coffee Gets Cold",
@@ -131,7 +130,7 @@ fun AddBookScreen(onBack: () -> Unit, onSave: (title: String, totalPages: Int, t
 
             // Total Pages Input
             LabeledField(label = "Total pages") {
-                FpTextField(
+                AppTextField(
                     value = pagesText,
                     onChange = { v -> pagesText = v.filter(Char::isDigit).take(5) },
                     placeholder = "e.g. 250",
@@ -140,26 +139,18 @@ fun AddBookScreen(onBack: () -> Unit, onSave: (title: String, totalPages: Int, t
             }
             // Target Finish Date Input
             LabeledField(label = "Target finish date") {
-                Box {
-                    FpTextField(
-                        value = formattedDate,
-                        onChange = {},
-                        placeholder = "mm / dd / yyyy",
-                        readOnly = true,
-                        trailing = {
-                            Icon(
-                                imageVector = Icons.Filled.CalendarMonth,
-                                contentDescription = "Pick a date",
-                                tint = colors.primary
-                            )
-                        }
-                    )
-                    Box(
-                        Modifier
-                            .matchParentSize()
-                            .clickable { showPicker = true }
-                    )
-                }
+                AppPickerField(
+                    value = formattedDate,
+                    placeholder = "mm / dd / yyyy",
+                    onClick = { showPicker = true },
+                    trailing = {
+                        Icon(
+                            imageVector = Icons.Filled.CalendarMonth,
+                            contentDescription = "Pick a date",
+                            tint = colors.primary
+                        )
+                    }
+                )
             }
             // Dynamic Goal Card Calculation
             if (perDay > 0) {
@@ -184,19 +175,22 @@ fun AddBookScreen(onBack: () -> Unit, onSave: (title: String, totalPages: Int, t
         DatePickerDialog(
             onDismissRequest = { showPicker = false },
             confirmButton = {
-                TextButton(
+                AppTextButton(
+                    label = "OK",
                     onClick = {
                         targetDateMillis = pickerState.selectedDateMillis
                         showPicker = false
-                    }
-                ) {
-                    Text("OK", color = colors.primary)
-                }
+                    },
+                    color = colors.primary,
+                    style = MaterialTheme.typography.labelLarge,
+                )
             },
             dismissButton = {
-                TextButton(onClick = { showPicker = false }) {
-                    Text("Cancel", color = colors.onSurfaceVariant)
-                }
+                AppTextButton(
+                    label = "Cancel",
+                    onClick = { showPicker = false },
+                    style = MaterialTheme.typography.labelLarge,
+                )
             }
         ) {
             DatePicker(state = pickerState)
@@ -252,60 +246,4 @@ private fun GoalCard(perDay: Int, pages: Int, days: Int) {
             )
         }
     }
-}
-
-@Composable
-private fun LabeledField(label: String, content: @Composable () -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-        content()
-    }
-}
-
-@Composable
-private fun FpTextField(
-    value: String,
-    onChange: (String) -> Unit,
-    placeholder: String,
-    keyboard: KeyboardOptions = KeyboardOptions.Default,
-    readOnly: Boolean = false,
-    trailing: (@Composable () -> Unit)? = null,
-    isError: Boolean = false,
-    errorText: String? = null,
-) {
-    val colors = MaterialTheme.colorScheme
-    OutlinedTextField(
-        value = value,
-        onValueChange = onChange,
-        readOnly = readOnly,
-        singleLine = true,
-        keyboardOptions = keyboard,
-        placeholder = {
-            Text(
-                text = placeholder,
-                style = MaterialTheme.typography.bodyLarge,
-                fontStyle = FontStyle.Italic,
-                color = colors.onSurfaceVariant.copy(alpha = 0.7f),
-            )
-        },
-        trailingIcon = trailing,
-        isError = isError,
-        supportingText = if (errorText != null) {
-            { Text(errorText) }
-        } else null,
-        shape = RoundedCornerShape(14.dp),
-        textStyle = MaterialTheme.typography.bodyLarge.copy(color = colors.onSurface),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = colors.surface,
-            unfocusedContainerColor = colors.surface,
-            focusedBorderColor = colors.primary,
-            unfocusedBorderColor = colors.outline,
-            cursorColor = colors.primary,
-        ),
-        modifier = Modifier.fillMaxWidth(),
-    )
 }

@@ -9,12 +9,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.fivepages.R
+import com.example.fivepages.ui.components.AppTextButton
 import com.example.fivepages.ui.components.FullScreenPage
 import com.example.fivepages.ui.components.PageBody
 import com.example.fivepages.ui.components.PrimaryButton
@@ -68,15 +67,12 @@ fun SessionLoggedScreen(
 
         if (onUndo != null) {
             Spacer(Modifier.height(8.dp))
-            TextButton(onClick = onUndo) {
-                Text(
-                    "Logged the wrong number? Undo",
-                    style = MaterialTheme.typography.bodySmall,
-                    fontStyle = FontStyle.Italic,
-                    textDecoration = TextDecoration.Underline,
-                    color = colors.error
-                )
-            }
+            AppTextButton(
+                label = "Logged the wrong number? Undo",
+                onClick = onUndo,
+                color = colors.error,
+                asLink = true,
+            )
         }
     }
 }
