@@ -86,15 +86,31 @@ fun DialogImage(@DrawableRes id: Int) {
 }
 
 @Composable
-fun DialogPrimaryButton(label: String, onClick: () -> Unit) {
+fun DialogPrimaryButton(label: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val colors = MaterialTheme.colorScheme
     Button(
         onClick = onClick,
-        modifier = Modifier.fillMaxWidth().height(48.dp),
+        modifier = modifier.fillMaxWidth().height(48.dp),
         shape = RoundedCornerShape(24.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = colors.primary,
             contentColor = colors.onPrimary
+        ),
+    ) {
+        Text(label, style = MaterialTheme.typography.titleSmall)
+    }
+}
+
+@Composable
+fun DialogDangerButton(label: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val colors = MaterialTheme.colorScheme
+    Button(
+        onClick = onClick,
+        modifier = modifier.fillMaxWidth().height(48.dp),
+        shape = RoundedCornerShape(24.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = colors.error.copy(alpha = 0.12f),
+            contentColor = colors.error
         ),
     ) {
         Text(label, style = MaterialTheme.typography.titleSmall)

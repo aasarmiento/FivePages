@@ -6,16 +6,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,6 +18,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.fivepages.ui.components.FullScreenPage
+import com.example.fivepages.ui.components.PageBody
+import com.example.fivepages.ui.components.PageDots
+import com.example.fivepages.ui.components.PrimaryButton
 import com.example.fivepages.ui.theme.FivePagesTheme
 
 
@@ -44,21 +42,10 @@ fun HowItWorksScreen(
 ) {
     val colors = MaterialTheme.colorScheme
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(colors.background)
-            .systemBarsPadding()
-            .padding(horizontal = 24.dp, vertical = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    FullScreenPage(modifier) {
 
         //Title and Steps
-        Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        PageBody {
             Text("How it works",
                 style = MaterialTheme.typography.headlineSmall,
                 color = colors.onBackground)
@@ -72,34 +59,11 @@ fun HowItWorksScreen(
             Spacer(Modifier.height(28.dp))
 
             //Page Dots
-            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                repeat(3) { i ->
-                    Box(
-                        Modifier
-                            .size(width = if (i == 1) 18.dp else 5.dp, height = 5.dp)
-                            .background(
-                                color = if (i == 1) colors.primary else colors.onSurfaceVariant.copy(alpha = 0.35f),
-                                shape = CircleShape
-                            )
-                    )
-                }
-            }
+            PageDots(current = 1)
         }
 
         //Next Button
-        Button(
-            onClick = onNext,
-            modifier = Modifier.fillMaxWidth().height(52.dp),
-            shape = RoundedCornerShape(10.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = colors.primary,
-                contentColor = colors.onPrimary
-            ),
-        ) {
-            Text(text = "Next",
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.SemiBold)
-        }
+        PrimaryButton("Next", onNext)
     }
 }
 

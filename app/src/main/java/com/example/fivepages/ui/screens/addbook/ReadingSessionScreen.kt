@@ -1,6 +1,5 @@
 package com.example.fivepages.ui.screens.addbook
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,9 +8,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -24,15 +21,13 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.fivepages.ui.components.OutlineButton
+import com.example.fivepages.ui.components.PrimaryButton
+import com.example.fivepages.ui.components.TitleTopBar
 import com.example.fivepages.ui.theme.FivePagesTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.text.font.FontStyle
@@ -70,30 +65,18 @@ fun ReadingSessionScreen(
 
     Scaffold(
         containerColor = colors.background,
-        topBar = {
-            Column {
-                Text(
-                    "Reading Session",
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = colors.onBackground,
-                    modifier = Modifier.statusBarsPadding().padding(horizontal = 20.dp, vertical = 12.dp),
-                )
-                HorizontalDivider(color = colors.outline)
-            }
-        },
+        topBar = { TitleTopBar("Reading Session", style = MaterialTheme.typography.headlineSmall) },
         bottomBar = {
             Column(Modifier.navigationBarsPadding().padding(20.dp)) {
-                Button(
+                PrimaryButton(
+                    label = "Complete Session",
                     onClick = {
 
                         if (running) accumulatedMs = elapsedMs
                         running = false
                         onComplete()
                     },
-                    shape = RoundedCornerShape(14.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = colors.primary, contentColor = colors.onPrimary),
-                    modifier = Modifier.fillMaxWidth().height(52.dp),
-                ) { Text("Complete Session", style = MaterialTheme.typography.titleSmall) }
+                )
             }
         },
     ) { padding ->
@@ -120,7 +103,8 @@ fun ReadingSessionScreen(
                 }
             }
             Spacer(Modifier.height(32.dp))
-            OutlinedButton(
+            OutlineButton(
+                label = if (running) "Pause" else "Resume",
                 onClick = {
                     if (running) {
                         accumulatedMs = elapsedMs
@@ -131,16 +115,8 @@ fun ReadingSessionScreen(
                         running = true
                     }
                 },
-                shape = RoundedCornerShape(12.dp),
-                border = BorderStroke(1.dp, colors.primary),
                 modifier = Modifier.width(160.dp).height(48.dp),
-            ) {
-                Text(
-                    if (running) "Pause" else "Resume",
-                    style = MaterialTheme.typography.titleSmall,
-                    color = colors.primary,
-                )
-            }
+            )
             Spacer(Modifier.height(20.dp))
             TextButton(onClick = { showDiscard = true }) {
                 Text(

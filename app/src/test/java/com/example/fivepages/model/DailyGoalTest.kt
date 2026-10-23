@@ -15,4 +15,9 @@ class DailyGoalTest {
     fun dailyGoal_onTheLastDayIsAllThePagesLeft() {
         assertEquals(30, dailyGoal(30, 1))
     }
+
+    @Test
+    fun dailyGoal_roundsUpToTheNextWholePage() {
+        assertEquals(5, dailyGoal(250, 57))
+    }
 }
