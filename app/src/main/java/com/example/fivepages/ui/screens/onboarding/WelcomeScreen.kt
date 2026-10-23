@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -16,6 +15,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.fivepages.R
+import com.example.fivepages.ui.components.AppTextButton
 import com.example.fivepages.ui.components.FullScreenPage
 import com.example.fivepages.ui.components.PageBody
 import com.example.fivepages.ui.components.PageDots
@@ -33,11 +33,7 @@ fun WelcomeScreen(
     FullScreenPage(modifier) {
 
         //Skip Link
-        TextButton(onClick = onSkip) {
-            Text(text = "Skip to app →",
-                style = MaterialTheme.typography.bodySmall,
-                color = colors.onSurfaceVariant)
-        }
+        AppTextButton("Skip to app →", onSkip)
 
         //Logo and Welcome Text
         PageBody {

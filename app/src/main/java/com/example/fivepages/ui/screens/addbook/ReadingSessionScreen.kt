@@ -10,17 +10,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.fivepages.ui.components.AppTextButton
 import com.example.fivepages.ui.components.OutlineButton
 import com.example.fivepages.ui.components.PrimaryButton
 import com.example.fivepages.ui.components.TitleTopBar
@@ -30,7 +26,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -118,17 +113,13 @@ fun ReadingSessionScreen(
                 modifier = Modifier.width(160.dp).height(48.dp),
             )
             Spacer(Modifier.height(20.dp))
-            TextButton(onClick = { showDiscard = true }) {
-                Text(
-                    buildAnnotatedString {
-                        withStyle(SpanStyle(textDecoration = TextDecoration.Underline, fontStyle = FontStyle.Italic)) {
-                            append("Discard this session")
-                        }
-                    },
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = colors.error,
-                )
-            }
+            AppTextButton(
+                label = "Discard this session",
+                onClick = { showDiscard = true },
+                color = colors.error,
+                style = MaterialTheme.typography.bodyMedium,
+                asLink = true,
+            )
         }
     }
 

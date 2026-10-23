@@ -1,27 +1,18 @@
 package com.example.fivepages.ui.screens.settings
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
@@ -38,7 +29,12 @@ import androidx.compose.ui.window.DialogProperties
 import com.example.fivepages.model.ReminderWindow
 import com.example.fivepages.model.timeText
 import com.example.fivepages.ui.theme.FivePagesTheme
+import com.example.fivepages.ui.components.AppPickerField
+import com.example.fivepages.ui.components.AppSwitch
+import com.example.fivepages.ui.components.AppTextButton
+import com.example.fivepages.ui.components.AppTextField
 import com.example.fivepages.ui.components.BackTopBar
+import com.example.fivepages.ui.components.LabeledField
 import com.example.fivepages.ui.components.PrimaryButton
 
 //reminder = null means we are adding a new reminder
@@ -91,13 +87,12 @@ fun ReminderWindowScreen(
 
                 //Delete is only for existing reminders
                 if (reminder != null) {
-                    TextButton(onClick = { showDeleteConfirm = true }) {
-                        Text(
-                            "Delete this reminder",
-                            style = MaterialTheme.typography.labelLarge,
-                            color = colors.error
-                        )
-                    }
+                    AppTextButton(
+                        label = "Delete this reminder",
+                        onClick = { showDeleteConfirm = true },
+                        color = colors.error,
+                        style = MaterialTheme.typography.labelLarge,
+                    )
                 }
             }
         },
@@ -105,79 +100,41 @@ fun ReminderWindowScreen(
         Column(
             Modifier
                 .padding(padding)
-                .padding(20.dp)
+                .padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             //Name Field
-            Text("Name", style = MaterialTheme.typography.labelLarge, color = colors.onBackground)
-            Spacer(Modifier.height(8.dp))
-            OutlinedTextField(
-                value = name,
-                onValueChange = { if (it.length <= 30) name = it },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                textStyle = MaterialTheme.typography.bodyLarge,
-                placeholder = {
-                    Text(
-                        "e.g. Morning coffee",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = colors.onSurfaceVariant
-                    )
-                },
-                shape = RoundedCornerShape(10.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = colors.surface,
-                    unfocusedContainerColor = colors.surface,
-                    focusedBorderColor = colors.primary,
-                    unfocusedBorderColor = colors.outline,
-                    cursorColor = colors.primary,
-                ),
-            )
-
-            Spacer(Modifier.height(24.dp))
-
-            //Time Field
-            Text("Time", style = MaterialTheme.typography.labelLarge, color = colors.onBackground)
-            Spacer(Modifier.height(8.dp))
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .height(52.dp)
-                    .background(colors.surface, RoundedCornerShape(10.dp))
-                    .border(1.dp, colors.outline, RoundedCornerShape(10.dp))
-                    .clickable { showTimePicker = true }
-                    .padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(timeText, style = MaterialTheme.typography.bodyLarge, color = colors.onSurface)
+            LabeledField("Name") {
+                AppTextField(
+                    value = name,
+                    onChange = { if (it.length <= 30) name = it },
+                    placeholder = "e.g. Morning coffee",
+                )
             }
 
-            Spacer(Modifier.height(24.dp))
+            //Time Field
+            LabeledField("Time") {
+                AppPickerField(
+                    value = timeText,
+                    placeholder = "",
+                    onClick = { showTimePicker = true },
+                )
+            }
 
             //Enabled Switch
-            Text("Enabled", style = MaterialTheme.typography.labelLarge, color = colors.onBackground)
-            Spacer(Modifier.height(8.dp))
-            Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    "Send notification at this time",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = colors.onBackground
-                )
-                Switch(
-                    checked = enabled,
-                    onCheckedChange = { enabled = it },
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = colors.surface,
-                        checkedTrackColor = colors.primary,
-                        checkedBorderColor = colors.primary,
-                        uncheckedThumbColor = colors.surface,
-                        uncheckedTrackColor = colors.outline,
-                        uncheckedBorderColor = colors.outline,
-                    ),
-                )
+            LabeledField("Enabled") {
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        "Send notification at this time",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = colors.onBackground
+                    )
+                    AppSwitch(checked = enabled, onCheckedChange = { enabled = it })
+                }
             }
         }
     }
@@ -259,8 +216,18 @@ private fun TimePickerDialog(
             ) {
                 TimePicker(state = state)
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                    TextButton(onClick = onDismiss) { Text("Cancel") }
-                    TextButton(onClick = { onConfirm(state.hour, state.minute) }) { Text("OK") }
+                    AppTextButton(
+                        label = "Cancel",
+                        onClick = onDismiss,
+                        color = colors.primary,
+                        style = MaterialTheme.typography.labelLarge,
+                    )
+                    AppTextButton(
+                        label = "OK",
+                        onClick = { onConfirm(state.hour, state.minute) },
+                        color = colors.primary,
+                        style = MaterialTheme.typography.labelLarge,
+                    )
                 }
             }
         }
