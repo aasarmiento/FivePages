@@ -439,6 +439,14 @@ In Android Studio you can also right-click `app/src/test` and choose *Run Tests*
 
 The full table of screen-by-screen checks is in **[docs/TEST_CASES.md](docs/TEST_CASES.md)**. It covers navigation, validation, the dialogs, the streak freeze and data that must survive closing the app.
 
+The team ran all 54 checks on October 22, 2026, on commit `fcc59ef`: **54 Pass, 0 Fail**.
+
+Worth knowing from the testers' notes:
+
+- **Undo** after logging goes back to the Log pages screen so you can enter the right number. Pressing back there discards the session.
+- **Large phone fonts:** at the maximum text size a few words are cut off, like the "Discard" button in dialogs and "Send notification at this time" in Reminder window.
+- **Suggestion:** let people type the number of pages instead of only pressing plus, because big numbers take many taps.
+
 ---
 
 ## Modularity: shared components
@@ -489,10 +497,12 @@ We asked two classmates to try the app without help. The script, the observation
 
 | | Tester 1 | Tester 2 |
 |---|---|---|
-| Name | _to fill in_ | _to fill in_ |
-| Tasks finished without help | _/5_ | _/5_ |
-| Biggest confusion | | |
-| What we changed because of it | | |
+| Name | Maria Garcia | Luis Santos |
+| Tasks finished without help | 5/5 | 5/5 |
+| Biggest confusion | Tapping plus once per page, and finding the edit option | Logging pages one by one, and Done going back to the list |
+| What we changed because of it | Not yet, see Problems found | Not yet, see Problems found |
+
+The sessions were on October 22 and 23, 2026. Both testers finished every task alone in about 12 minutes and rated the app 4 out of 5. The five problems they found, and the fix we plan for each, are in the "Problems found" table in [docs/USER_TESTING.md](docs/USER_TESTING.md#problems-found).
 
 ---
 

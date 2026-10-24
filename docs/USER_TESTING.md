@@ -45,6 +45,40 @@ Make one copy per tester.
 | 4 | | | | |
 | 5 | | | | |
 
+### Tester 1
+
+| |         |
+|---|---------|
+| Tester | Maria Garcia |
+| Date | October 22, 2026 |
+| Phone used | Android |
+| Observer | Christian Allen Soriano |
+
+| Task | Finished alone? (Y/N) | Time   | Wrong taps or hesitation | What they said |
+|---|---|--------|---|---|
+| 1 | Y | 1m 03s | Read the first screen then skipped the rest. Accepted the notification prompt. | Said the onboarding was clear and that she already understood it was a reading tracker so she skipped ahead. |
+| 2 | Y | 2m 37s | Paused briefly on the grey Save button before selecting the finish date. | Mentioned she was confused why save was disabled at first, then realized the date was still needed and said it made sense after. |
+| 3 | Y | 3m 08s | Found Start session quickly and logged pages by tapping plus several times. | Noted that tapping plus for every page felt a bit repetitive but said it was still okay and easy to understand. |
+| 4 | Y | 3m 32s | Took a moment to find the options icon at the top, then had to re-enter the book after Done. | Said she looked around a little for the edit option, found it, and was fine going back into the book afterward. |
+| 5 | Y | 1m 26s | Found the streak on the book screen and opened the preview from Progress. | Said the streak was easy to spot and that she understood the freeze was for missing a day even if the wording was slightly unclear. |
+
+### Tester 2
+
+| |                        |
+|---|------------------------|
+| Tester | Luis Santos            |
+| Date | October 23, 2026       |
+| Phone used | Android |
+| Observer | Christian Allen Soriano |
+
+| Task | Finished alone? (Y/N) | Time   | Wrong taps or hesitation | What they said |
+|---|---|--------|---|---|
+| 1 | Y | 57s    | Skimmed the onboarding screens and skipped quickly. | Said everything looked clear right away and that he didn’t need to read further. |
+| 2 | Y | 2m 11s | Short pause on the grey Save button until the finish date was chosen. | Said he figured out the button needed the date and liked that the daily goal appeared after that. |
+| 3 | Y | 3m 34s | Started the session without trouble and logged pages with repeated plus taps. | Mentioned the plus taps would get tiring on a long book but said the rest of the session flow was straightforward. |
+| 4 | Y | 3m 09s | Found the options icon after a quick look at the top right. Done returned to the list. | Said the icon was a little easy to miss at first but he found it fine, and he was okay with going back to the list. |
+| 5 | Y | 1m 38s | Located the streak on both screens and opened the Missed yesterday preview. | Said the streak was easy to find and that he got the idea of the freeze even though the headline wording was a bit mixed. |
+
 ## Questions after the tasks
 
 Ask each, then write their answer in their own words.
@@ -56,22 +90,62 @@ Ask each, then write their answer in their own words.
 5. Would you use this for a real book? Why or why not?
 6. Rate the app from 1 (hard) to 5 (easy): ____
 
+### Maria Garcia
+
+1. What was the easiest part?  
+   Adding the book once she saw the finish date was required.
+
+2. What was the most confusing part?  
+   The repeated plus taps for logging pages and finding the edit option at first.
+
+3. Was there a moment you did not know what to press?  
+   Only briefly when looking for how to edit the book title.
+
+4. In your own words, what does the streak freeze do?  
+   It lets you keep the streak if you miss a day. The screen was slightly unclear but she understood the idea.
+
+5. Would you use this for a real book? Why or why not?  
+   Yes, she said she would try it because the app is simple, though page logging could get annoying on longer books.
+
+6. Rate the app from 1 (hard) to 5 (easy): 4
+
+### Luis Santos
+
+1. What was the easiest part?  
+   The overall flow once he got past the first screens.
+
+2. What was the most confusing part?  
+   Logging pages one by one and the Done button returning to the list.
+
+3. Was there a moment you did not know what to press?  
+   Just a second while looking for the book options icon.
+
+4. In your own words, what does the streak freeze do?  
+   It protects the streak when you miss a day. The wording on the screen was a little confusing but the meaning was clear enough.
+
+5. Would you use this for a real book? Why or why not?  
+   Yes, especially if typing the page count gets added later.
+
+6. Rate the app from 1 (hard) to 5 (easy): 4
+
 ## Results
 
 | | Tester 1 | Tester 2 |
 |---|---|---|
-| Name | | |
-| Tasks finished alone | /5 | /5 |
-| Total time | | |
-| Ease rating (1 to 5) | | |
+| Name | Maria Garcia | Luis Santos |
+| Tasks finished alone | 5/5 | 5/5 |
+| Total time | ~12 min | ~12 min |
+| Ease rating (1 to 5) | 4 | 4 |
 
 ### Problems found
 
 | # | Problem | Seen by | How bad (low, medium, high) | Fix |
 |---|---|---|---|---|
-| 1 | | | | |
-| 2 | | | | |
-| 3 | | | | |
+| 1 | Save button stays grey until the finish date is picked, no hint why | Both | Low | Add a small note under the button |
+| 2 | Have to tap “+” once per page | Both | Medium | Let people type the number of pages |
+| 3 | Book options icon is easy to miss at first | Both | Low | Maybe add a label or make it clearer |
+| 4 | Done after editing goes back to the book list | Both | Low | Stay on the book page after saving |
+| 5 | Streak freeze screen wording is a bit mixed | Both | Low | Clearer headline and short explanation |
 
 ### Changes we made
 
@@ -89,4 +163,4 @@ After the fixes, ask one tester to repeat the task that went worst and write the
 
 ## Sign-off
 
-Observer: ________________________  Date: ____________
+Observer: Christian Allen Soriano  Date: October 23, 2026
