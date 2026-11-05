@@ -7,7 +7,7 @@
   <img alt="Jetpack Compose" src="https://img.shields.io/badge/Jetpack%20Compose-Material%203-2E6F40?logo=jetpackcompose&logoColor=white">
   <img alt="Room" src="https://img.shields.io/badge/Room-2.6.1-4285F4">
   <img alt="minSdk" src="https://img.shields.io/badge/minSdk-24-555">
-  <img alt="Unit tests" src="https://img.shields.io/badge/unit%20tests-34%20passing-2E6F40">
+  <img alt="Unit tests" src="https://img.shields.io/badge/unit%20tests-38%20passing-2E6F40">
   <img alt="Storage" src="https://img.shields.io/badge/storage-local%20only-555">
 </p>
 
@@ -180,7 +180,8 @@ FivePages/
         │       │   ├── ProgressStats.kt     streak, week chart, month count, summary
         │       │   ├── StreakGrace.kt       freeze and missed-yesterday rules
         │       │   ├── SessionHistory.kt    history rows, duration and date text
-        │       │   └── RemainingDays.kt     days left and the daily goal
+        │       │   ├── RemainingDays.kt     days left and the daily goal
+        │       │   └── PagesInput.kt        typed page count in Log Pages
         │       │
         │       └── ui/
         │           ├── theme/               Color.kt, Theme.kt, Type.kt
@@ -207,7 +208,8 @@ FivePages/
         │   ├── ProgressStatsTest.kt         11 tests
         │   ├── StreakGraceTest.kt           11 tests
         │   ├── SessionHistoryTest.kt         8 tests
-        │   └── DailyGoalTest.kt              3 tests
+        │   ├── DailyGoalTest.kt              3 tests
+        │   └── PagesInputTest.kt             4 tests
         │   (ExampleUnitTest.kt, 1 template test, sits one folder up)
         └── androidTest/                     instrumented test template
 ```
@@ -373,13 +375,13 @@ In Android Studio you can also right-click `app/src/test` and choose *Run Tests*
 
 ## Testing
 
-### Automated: 34 unit tests, all passing
+### Automated: 38 unit tests, all passing
 
 <p align="center">
-  <img src="docs/assets/unit-tests-passed.png" alt="Android Studio showing 33 tests passed" width="70%">
+  <img src="docs/assets/unit-tests-passed.png" alt="Android Studio showing 38 tests passed" width="70%">
 </p>
 
-33 tests cover the pure functions in `model/`, so they run in seconds with no emulator. The 34th is the `ExampleUnitTest` that Android Studio creates with every new project.
+37 tests cover the pure functions in `model/`, so they run in seconds with no emulator. The 38th is the `ExampleUnitTest` that Android Studio creates with every new project.
 
 | File | Tests | What is checked |
 |---|---:|---|
@@ -387,6 +389,7 @@ In Android Studio you can also right-click `app/src/test` and choose *Run Tests*
 | `StreakGraceTest` | 11 | Missed yesterday, freeze keeps streak, frozen day not counted, monthly refill, month key |
 | `SessionHistoryTest` | 8 | Duration text (dash, under a minute, minutes, hours), page plurals, date format, only this book, newest first |
 | `DailyGoalTest` | 3 | Pages split evenly over days left, last day is all pages left, rounds up to the next whole page |
+| `PagesInputTest` | 4 | Typed page count: reads a number, empty is zero, drops letters, capped at the pages left |
 | `ExampleUnitTest` | 1 | Template test from Android Studio |
 
 <details>
@@ -433,19 +436,27 @@ In Android Studio you can also right-click `app/src/test` and choose *Run Tests*
 - `dailyGoal_onTheLastDayIsAllThePagesLeft`
 - `dailyGoal_roundsUpToTheNextWholePage`
 
+**PagesInputTest**
+- `pagesToLog_readsATypedNumber`
+- `pagesToLog_emptyOrNoDigitsIsZero`
+- `pagesToLog_dropsLettersAndSpaces`
+- `pagesToLog_isCappedAtThePagesLeft`
+
 </details>
 
 ### Manual: test-case table
 
 The full table of screen-by-screen checks is in **[docs/TEST_CASES.md](docs/TEST_CASES.md)**. It covers navigation, validation, the dialogs, the streak freeze and data that must survive closing the app.
 
-The team ran all 54 checks on October 22, 2026, on commit `fcc59ef`: **54 Pass, 0 Fail**.
+The team ran the first 54 checks on October 22, 2026, on commit `fcc59ef`: **54 Pass, 0 Fail**.
+
+After the Milestone 2 fixes, all 57 checks (3 new ones) were run again on November 5, 2026: **57 Pass, 0 Fail**. The Expected text of BD-01 and PR-11 was reworded to match the app, and UI-01 was compared with Figma by Christian.
 
 Worth knowing from the testers' notes:
 
 - **Undo** after logging goes back to the Log pages screen so you can enter the right number. Pressing back there discards the session.
 - **Large phone fonts:** at the maximum text size a few words are cut off, like the "Discard" button in dialogs and "Send notification at this time" in Reminder window.
-- **Suggestion:** let people type the number of pages instead of only pressing plus, because big numbers take many taps.
+- **Suggestion:** let people type the number of pages instead of only pressing plus, because big numbers take many taps. This is now done.
 
 ---
 
@@ -500,9 +511,11 @@ We asked two classmates to try the app without help. The script, the observation
 | Name | Maria Garcia | Luis Santos |
 | Tasks finished without help | 5/5 | 5/5 |
 | Biggest confusion | Tapping plus once per page, and finding the edit option | Logging pages one by one, and Done going back to the list |
-| What we changed because of it | Not yet, see Problems found | Not yet, see Problems found |
+| What we changed because of it | Log Pages now has a box to type the number of pages | Log Pages now has a box to type the number of pages |
 
 The sessions were on October 22 and 23, 2026. Both testers finished every task alone in about 12 minutes and rated the app 4 out of 5. The five problems they found, and the fix we plan for each, are in the "Problems found" table in [docs/USER_TESTING.md](docs/USER_TESTING.md#problems-found).
+
+**After Milestone 2 feedback:** Log Pages now lets you type the number of pages, a quick double tap on Save logs the session only once, and Add book and Log Pages keep what you entered when the phone rotates and scroll in landscape. The details are in the "Changes we made" table.
 
 ---
 

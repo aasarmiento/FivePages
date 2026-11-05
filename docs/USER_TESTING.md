@@ -151,7 +151,10 @@ Ask each, then write their answer in their own words.
 
 | Problem # | What we changed | Commit or file |
 |---|---|---|
-| | | |
+| 2 | Log Pages has a box to type the number of pages. The minus and plus buttons still work, and the number can't go above the pages left. | `LogPagesScreen.kt`, `model/PagesInput.kt` |
+| Mentor feedback | A quick double tap on Save in Log Pages now logs the session only once. | `LogPagesScreen.kt` |
+| Mentor feedback | Add book and Log Pages keep what you entered when the phone rotates. | `AddBookScreen.kt`, `LogPagesScreen.kt` |
+| Found while testing | In landscape the fields on Add book and Log Pages overlapped. Both screens now scroll. | `AddBookScreen.kt`, `LogPagesScreen.kt` |
 
 ### Retest
 
@@ -159,8 +162,8 @@ After the fixes, ask one tester to repeat the task that went worst and write the
 
 | Task | Before | After |
 |---|---|---|
-| | | |
+| 3 Start a reading session and log some pages | Had to tap + once per page (logged ~12 pages in about 3 minutes). | Maria retested on the new build. She typed 45 in the page box and tapped Save. Session logged in under 20 seconds. Said it was much better. |
 
 ## Sign-off
 
-Observer: Christian Allen Soriano  Date: October 23, 2026
+Observer: Christian Allen Soriano  Date: November 5, 2026
