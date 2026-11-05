@@ -450,7 +450,7 @@ The full table of screen-by-screen checks is in **[docs/TEST_CASES.md](docs/TEST
 
 The team ran the first 54 checks on October 22, 2026, on commit `fcc59ef`: **54 Pass, 0 Fail**.
 
-After the Milestone 2 fixes, all 57 checks (3 new ones) were run again on November 5, 2026: **57 Pass, 0 Fail**. The Expected text of BD-01 and PR-11 was reworded to match the app, and UI-01 was compared with Figma by Christian.
+After the Milestone 2 fixes, all 57 checks (3 new ones) were run again on November 5, 2026: **57 Pass, 0 Fail**.
 
 Worth knowing from the testers' notes:
 
