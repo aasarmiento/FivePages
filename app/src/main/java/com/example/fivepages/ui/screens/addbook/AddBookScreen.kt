@@ -28,9 +28,12 @@ import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -67,11 +70,11 @@ fun AddBookScreen(onBack: () -> Unit, onSave: (title: String, totalPages: Int, t
     val colors = MaterialTheme.colorScheme
 
     // Form State
-    var title by remember { mutableStateOf("") }
-    var pagesText by remember { mutableStateOf("") }
-    var targetDateMillis by remember { mutableStateOf<Long?>(null) }
-    var showPicker by remember { mutableStateOf(false) }
-    var showAdded by remember { mutableStateOf(false) }
+    var title by rememberSaveable { mutableStateOf("") }
+    var pagesText by rememberSaveable { mutableStateOf("") }
+    var targetDateMillis by rememberSaveable { mutableStateOf<Long?>(null) }
+    var showPicker by rememberSaveable { mutableStateOf(false) }
+    var showAdded by rememberSaveable { mutableStateOf(false) }
     val formattedDate = targetDateMillis?.let { DateFmt.format(Date(it)) } ?: ""
 
     val pages = pagesText.toIntOrNull() ?: 0
@@ -113,6 +116,7 @@ fun AddBookScreen(onBack: () -> Unit, onSave: (title: String, totalPages: Int, t
             modifier = Modifier
                 .padding(padding)
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState()) // so nothing overlaps in landscape
                 .padding(horizontal = 20.dp, vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(18.dp),
 
