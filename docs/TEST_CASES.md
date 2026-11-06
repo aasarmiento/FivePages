@@ -4,16 +4,16 @@ Manual checks for FivePages. Run them on a real phone or an emulator with a fres
 
 **How to fill this in:** put **Pass** or **Fail** in the Result column, the tester's name, the date, and a short note if it failed. Do not mark a case Pass unless you actually ran it.
 
-| | |
-|---|---|
-| App version / commit | `fcc59ef` (main) |
-| Device and Android version | Emulator and an Android phone |
+| |                                                               |
+|---|---------------------------------------------------------------|
+| App version / commit | `ce8dfe0` (main) plus the Milestone 2 feedback fixes          |
+| Device and Android version | Emulator and an Android phone                        |
 | Tester | Franzie Frielle Mangalindan, Sire Ermond Manalo, Abigail Ann Sarmiento, Christian Allen Soriano |
-| Date | October 22, 2026 |
+| Date | November 5, 2026                                              |
 
-The results below come from the team's test sheet, the Google Doc "FivePages Test Cases" (Part 1).
+This is a second run of all 57 checks on the build with the Milestone 2 feedback fixes. The first run was by the whole team on October 22, 2026, on `fcc59ef`: 54 checks, all Pass (Google Doc "FivePages Test Cases", Part 1). BD-08, BD-09 and DT-06 are new.
 
-Automated unit tests are separate. Run `./gradlew testDebugUnitTest` (34 tests, all passing, see the README).
+Automated unit tests are separate. Run `./gradlew testDebugUnitTest` (38 tests, all passing, see the README).
 
 ---
 
@@ -49,14 +49,16 @@ Automated unit tests are separate. Run `./gradlew testDebugUnitTest` (34 tests, 
 ## 4. Book details and reading session
 
 | ID | Steps | Expected | Result | Notes |
-|---|---|---|--------|---|
-| BD-01 | Tap a book | Details show percent, pages left, days left and today's goal | Pass   | |
-| BD-02 | Tap start session | Timer screen opens for this book | Pass   | |
-| BD-03 | Pause and resume the timer | Time stops, then continues | Pass   | |
-| BD-04 | Leave the timer and choose to discard | Confirmation shows. Confirming discards, cancelling stays | Pass   | |
-| BD-05 | Finish the timer, enter pages, save | Nice one! screen shows the pages | Pass   | |
-| BD-06 | Tap undo on the Nice one! screen | Session is removed and the progress goes back | Pass   | Screen returns to the Log Reading Session page. Users are given another option to log the correct number of pages. If the back button is clicked, it discards the overall session. |
-| BD-07 | Log enough pages to finish the book | Book shows 100% | Pass   | Suggestion: add the option to type in the number of pages to log for convenience. Big numbers are harder to input if only plus is allowed. |
+|---|---|---|--------|-|
+| BD-01 | Tap a book | Details show the progress bar, pages left, today's goal (pages/day) and the day streak | Pass | |
+| BD-02 | Tap start session | Timer screen opens for this book | Pass | |
+| BD-03 | Pause and resume the timer | Time stops, then continues | Pass | |
+| BD-04 | Leave the timer and choose to discard | Confirmation shows. Confirming discards, cancelling stays | Pass | |
+| BD-05 | Finish the timer, enter pages, save | Nice one! screen shows the pages | Pass | |
+| BD-06 | Tap undo on the Nice one! screen | Session is removed and the progress goes back | Pass | Screen returns to the Log Reading Session page. Users are given another option to log the correct number of pages. If the back button is clicked, it discards the overall session. |
+| BD-07 | Log enough pages to finish the book | Book shows 100% | Pass | Finished a 200-page book by typing 200. The suggestion to type pages is now done (see BD-08). |
+| BD-08 | On Log pages, type a number in the box (try more than the pages left) | The big number matches what you typed, and it never goes above the pages left | Pass | Typed 5000 on a 200-page book: it was capped at 200. Typing "1a20" gave 120. |
+| BD-09 | On Log pages, double-tap Save quickly | Only one session is logged (check Session history) | Pass | Tapped Save three times at once: Session history shows 1 session. |
 
 ## 5. Book options
 
@@ -75,18 +77,18 @@ Automated unit tests are separate. Run `./gradlew testDebugUnitTest` (34 tests, 
 ## 6. Progress and streak
 
 | ID | Steps | Expected | Result | Notes |
-|---|---|---|---|---|
+|---|---|---|---|-|
 | PR-01 | Log a session today, open Progress | Streak shows 1 | Pass | Reflects the correct date in the Progress screen as well. |
 | PR-02 | Check the week chart | Pages appear on today's bar, week starts on Monday | Pass | |
 | PR-03 | Check sessions this month | Count matches the sessions logged this month | Pass | |
 | PR-04 | Tap Preview on Progress | Missed yesterday screen shows | Pass | |
 | PR-05 | Leave the Preview screen without choosing | No freeze used, no data changed | Pass | |
 | PR-06 | Read yesterday, skip nothing, open the app | No Missed yesterday screen shows | Pass | |
-| PR-07 | Have a streak, skip yesterday (change the phone date or seed data), open the app | Missed yesterday screen shows with the streak that can be saved | Pass | Observation: the Missed yesterday overlay appears after opening the Progress screen. |
+| PR-07 | Have a streak, skip yesterday (change the phone date or seed data), open the app | Missed yesterday screen shows with the streak that can be saved | Pass | The Missed yesterday screen appears after opening the Progress tab, not as soon as the app opens. |
 | PR-08 | On Missed yesterday, use the freeze | Grace day used screen shows, streak is kept, freezes left is 0 | Pass | Day streak is retained. |
 | PR-09 | After using the freeze, read today | Streak continues, the frozen day did not add a number | Pass | |
-| PR-10 | Try a second freeze in the same month | Not offered | Pass | "Use Streak Freeze" is greyed out. |
-| PR-11 | Choose Fresh start | Goes to My books and the streak begins again | Pass | A streak begins at 1 only after a page is logged. |
+| PR-10 | Try a second freeze in the same month | Not offered | Pass | The button shows "Use Streak Freeze (0 left)" and is greyed out. |
+| PR-11 | Choose Fresh start | A Fresh Start screen shows (Start a Session Now / Back to Progress), and the streak starts again from the next page logged | Pass | |
 
 ## 7. Settings and reminders
 
@@ -101,20 +103,21 @@ Automated unit tests are separate. Run `./gradlew testDebugUnitTest` (34 tests, 
 ## 8. Data and stability
 
 | ID | Steps | Expected | Result | Notes |
-|---|---|---|---|---|
+|---|---|---|---|-|
 | DT-01 | Add books and sessions, force close, reopen | Everything is still there | Pass | |
 | DT-02 | Rotate the phone on a main screen | Screen redraws and no data is lost | Pass | The screen follows when rotated, it scrolls just fine. |
-| DT-03 | Tap a button twice quickly (Add, Save, Delete) | Only one action happens | Pass | Buttons work immediately when clicked, so no action is repeated. |
+| DT-03 | Tap a button twice quickly (Add, Save, Delete) | Only one action happens | Pass | Tapped Save on Add book, Save on Edit title and Delete Book three times at once: each happened only once. |
 | DT-04 | Use the system back button on every screen | It goes to the previous screen and never leaves the app by mistake | Pass | |
 | DT-05 | Use the app with the phone in airplane mode | Everything still works | Pass | |
+| DT-06 | Fill in Add book or Log pages halfway | What you entered is still there | Pass | |
 
 ## 9. Look and feel
 
 | ID | Steps | Expected | Result | Notes |
-|---|---|---|---|---|
-| UI-01 | Compare each screen with its Figma frame | Layout, colours and fonts match | Pass | Overall design is consistent with the prototype. A minor difference is how some element sizes appear. |
-| UI-02 | Set the phone font size to Large | Text is still readable and nothing is cut off | Pass | At maximum text size a few words are cut off, but most text stays intact. Cut off: the "Discard" button in dialogs, "Send notification at this time" in Reminder window, and the "0-day" in the streak freeze screen. |
-| UI-03 | Check every icon-only button | It has a content description and a big enough tap area | Pass | Buttons are working smoothly. |
+|---|---|---|---|-|
+| UI-01 | Compare each screen with its Figma frame | Layout, colours and fonts match | Pass | 	Overall design is consistent with the prototype. A minor difference is how some element sizes appear. |
+| UI-02 | Set the phone font size to Large | Text is still readable and nothing is cut off | Pass | |
+| UI-03 | Check every icon-only button | It has a content description and a big enough tap area | Pass | |
 
 ---
 
@@ -122,14 +125,16 @@ Automated unit tests are separate. Run `./gradlew testDebugUnitTest` (34 tests, 
 
 | Section | Cases |   Pass | Fail | Not run |
 |---|---:|-------:|---:|--------:|
-| 1 Onboarding | 4 |      4 | 0 |       0 |
-| 2 My books | 5 |      5 | 0 |       0 |
-| 3 Add a book | 5 |      5 | 0 |       0 |
-| 4 Book details and session | 7 |      7 | 0 |       0 |
-| 5 Book options | 9 |      9 | 0 |       0 |
-| 6 Progress and streak | 11 |     11 | 0 |       0 |
-| 7 Settings and reminders | 5 |      5 | 0 |       0 |
-| 8 Data and stability | 5 |      5 | 0 |       0 |
-| 9 Look and feel | 3 |      3 | 0 |       0 |
-| **Total** | **54** | **54** | **0** |   **0** |
+| 1 Onboarding | 4 | 4 | 0 | 0 |
+| 2 My books | 5 | 5 | 0 | 0 |
+| 3 Add a book | 5 | 5 | 0 | 0 |
+| 4 Book details and session | 9 | 9 | 0 | 0 |
+| 5 Book options | 9 | 9 | 0 | 0 |
+| 6 Progress and streak | 11 | 11 | 0 | 0 |
+| 7 Settings and reminders | 5 | 5 | 0 | 0 |
+| 8 Data and stability | 6 | 6 | 0 | 0 |
+| 9 Look and feel | 3 | 3 | 0 | 0 |
+| **Total** | **57** | **57** | **0** | **0** |
+
+
 
